@@ -1,0 +1,9 @@
+/*
+ * $FreeBSD$
+ */
+
+LIBPERIODIC_20160708115711 {
+    prdic_init;
+    prdic_procrastinate;
+    prdic_free;
+};
