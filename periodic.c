@@ -5,7 +5,7 @@
 #include <time.h>
 
 #include "periodic.h"
-#include "prdic_math.c"
+#include "prdic_math.h"
 
 #define SEC(x)      ((x)->tv_sec)
 #define NSEC(x)     ((x)->tv_nsec)
