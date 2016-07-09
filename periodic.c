@@ -92,6 +92,8 @@ prdic_init(double freq_hz, double off_from_now)
         goto e0;
     }
     mplusdtime(&pip->epoch, off_from_now);
+    recfilter_init(&pip->loop_error, 0.96, 0.0, 0);
+    PFD_init(&pip->phase_detector, 0.0);
     return ((void *)pip);
 e0:
     free(pip);
