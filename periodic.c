@@ -4,7 +4,7 @@
 #include <string.h>
 #include <time.h>
 
-#include "periodic.h"
+#include "elperiodic.h"
 #include "prdic_math.h"
 
 #define SEC(x)      ((x)->tv_sec)
