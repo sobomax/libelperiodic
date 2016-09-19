@@ -1,7 +1,7 @@
 LIB=            elperiodic
 SHLIB_MAJOR=    0
 
-SRCS=		periodic.c prdic_math.c prdic_math.h
+SRCS=		periodic.c prdic_math.c prdic_math.h prdic_timespecops.h
 INCS=		elperiodic.h
 
 WARNS?=		4

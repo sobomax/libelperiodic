@@ -50,8 +50,7 @@ struct recfilter {
 };
 
 struct PFD {
-    double target_clk;
-    double phi_round;
+    struct timespec target_tclk;
 };
 
 /* Function prototypes */
@@ -61,8 +60,8 @@ double recfilter_apply(struct recfilter *, double);
 double recfilter_apply_int(struct recfilter *, int);
 void recfilter_init(struct recfilter *, double, double, int);
 
-void PFD_init(struct PFD *, double);
-double PFD_get_error(struct PFD *, double);
+void PFD_init(struct PFD *);
+double PFD_get_error(struct PFD *, const struct timespec *);
 
 double freqoff_to_period(double freq_0, double foff_c, double foff_x);
 
