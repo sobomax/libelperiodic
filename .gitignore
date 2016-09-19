@@ -1,0 +1,8 @@
+*.a
+*.o
+*.so.*
+*.So
+*.so
+*.po
+a.out
+Version.map
