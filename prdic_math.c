@@ -24,39 +24,39 @@
  * SUCH DAMAGE.
  */
 
+#include <sys/time.h>
 #include <math.h>
+#include <string.h>
 
 #include "prdic_math.h"
+#include "prdic_timespecops.h"
 
 void
-PFD_init(struct PFD *pfd_p, double phi_round)
+PFD_init(struct PFD *pfd_p)
 {
 
-    pfd_p->target_clk = 0.0;
-    pfd_p->phi_round = phi_round;
+    memset(pfd_p, '\0', sizeof(struct PFD));
 }
 
 double
-PFD_get_error(struct PFD *pfd_p, double dtime)
+PFD_get_error(struct PFD *pfd_p, const struct timespec *tclk)
 {
-    double next_clk, err0r;
+    double err0r;
+    struct timespec next_tclk, ttclk;
 
-    if (pfd_p->phi_round > 0.0) {
-        dtime = trunc(dtime * pfd_p->phi_round) / pfd_p->phi_round;
-    }
-
-    next_clk = trunc(dtime) + 1.0;
-    if (pfd_p->target_clk == 0.0) {
-        pfd_p->target_clk = next_clk;
+    SEC(&next_tclk) = SEC(tclk) + 1;
+    NSEC(&next_tclk) = 0;
+    if (timespeciszero(&pfd_p->target_tclk)) {
+        pfd_p->target_tclk = next_tclk;
         return (0.0);
     }
 
-    err0r = pfd_p->target_clk - dtime;
+    timespecsub2(&ttclk, &pfd_p->target_tclk, tclk);
+    err0r = timespec2dtime(&ttclk);
 
+    pfd_p->target_tclk = next_tclk;
     if (err0r > 0) {
-        pfd_p->target_clk = next_clk + 1.0;
-    } else {
-        pfd_p->target_clk = next_clk;
+        SEC(&pfd_p->target_tclk) += 1;
     }
 
     return (err0r);
