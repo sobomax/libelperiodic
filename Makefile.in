@@ -109,7 +109,8 @@ am__v_AR_0 = @echo "  AR      " $@;
 am__v_AR_1 = 
 libelperiodic_a_AR = $(AR) $(ARFLAGS)
 libelperiodic_a_LIBADD =
-am_libelperiodic_a_OBJECTS = libelperiodic_a-periodic.$(OBJEXT)
+am_libelperiodic_a_OBJECTS = libelperiodic_a-periodic.$(OBJEXT) \
+	libelperiodic_a-prdic_math.$(OBJEXT)
 libelperiodic_a_OBJECTS = $(am_libelperiodic_a_OBJECTS)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -215,7 +216,6 @@ LDFLAGS = @LDFLAGS@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
 LIBS_DL = @LIBS_DL@
-LIBS_ELPERIODIC = @LIBS_ELPERIODIC@
 LIBS_G722 = @LIBS_G722@
 LIBS_G729 = @LIBS_G729@
 LIBS_GSM = @LIBS_GSM@
@@ -302,7 +302,9 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 noinst_LIBRARIES = libelperiodic.a
-libelperiodic_a_SOURCES = periodic.c elperiodic.h
+libelperiodic_a_SOURCES = elperiodic.h periodic.c prdic_math.c prdic_math.h \
+ prdic_timespecops.h
+
 libelperiodic_a_CFLAGS = -g3 -O0 -fPIC
 all: all-am
 
@@ -353,6 +355,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libelperiodic_a-periodic.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libelperiodic_a-prdic_math.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -388,6 +391,20 @@ libelperiodic_a-periodic.obj: periodic.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='periodic.c' object='libelperiodic_a-periodic.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libelperiodic_a_CFLAGS) $(CFLAGS) -c -o libelperiodic_a-periodic.obj `if test -f 'periodic.c'; then $(CYGPATH_W) 'periodic.c'; else $(CYGPATH_W) '$(srcdir)/periodic.c'; fi`
+
+libelperiodic_a-prdic_math.o: prdic_math.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libelperiodic_a_CFLAGS) $(CFLAGS) -MT libelperiodic_a-prdic_math.o -MD -MP -MF $(DEPDIR)/libelperiodic_a-prdic_math.Tpo -c -o libelperiodic_a-prdic_math.o `test -f 'prdic_math.c' || echo '$(srcdir)/'`prdic_math.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libelperiodic_a-prdic_math.Tpo $(DEPDIR)/libelperiodic_a-prdic_math.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='prdic_math.c' object='libelperiodic_a-prdic_math.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libelperiodic_a_CFLAGS) $(CFLAGS) -c -o libelperiodic_a-prdic_math.o `test -f 'prdic_math.c' || echo '$(srcdir)/'`prdic_math.c
+
+libelperiodic_a-prdic_math.obj: prdic_math.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libelperiodic_a_CFLAGS) $(CFLAGS) -MT libelperiodic_a-prdic_math.obj -MD -MP -MF $(DEPDIR)/libelperiodic_a-prdic_math.Tpo -c -o libelperiodic_a-prdic_math.obj `if test -f 'prdic_math.c'; then $(CYGPATH_W) 'prdic_math.c'; else $(CYGPATH_W) '$(srcdir)/prdic_math.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libelperiodic_a-prdic_math.Tpo $(DEPDIR)/libelperiodic_a-prdic_math.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='prdic_math.c' object='libelperiodic_a-prdic_math.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libelperiodic_a_CFLAGS) $(CFLAGS) -c -o libelperiodic_a-prdic_math.obj `if test -f 'prdic_math.c'; then $(CYGPATH_W) 'prdic_math.c'; else $(CYGPATH_W) '$(srcdir)/prdic_math.c'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo
