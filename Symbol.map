@@ -7,3 +7,7 @@ LIBELPERIODIC_20160708115711 {
     prdic_procrastinate;
     prdic_free;
 };
+
+LIBELPERIODIC_20160921155900 {
+    prdic_getncycles_ref;
+};

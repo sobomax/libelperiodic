@@ -131,6 +131,15 @@ prdic_procrastinate(void *prdic_inst)
     return (0);
 }
 
+time_t
+prdic_getncycles_ref(void *prdic_inst)
+{
+    struct prdic_inst *pip;
+
+    pip = (struct prdic_inst *)prdic_inst;
+    return (SEC(&pip->last_tclk));
+}
+
 void
 prdic_free(void *prdic_inst)
 {
