@@ -14,4 +14,7 @@ LOCALBASE?=	/usr/local
 LIBDIR?=	${LOCALBASE}/lib
 INCLUDEDIR?=	${LOCALBASE}/include
 
+testskew: testskew.c lib${LIB}.a
+	${CC} -o ${.TARGET} ${CFLAGS} testskew.c lib${LIB}.a -lm
+
 .include <bsd.lib.mk>
