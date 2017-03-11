@@ -11,23 +11,35 @@ static void
 usage(void)
 {
 
-    fprintf(stderr, "usage: testskew [-v] freq ival\n");
+    fprintf(stderr, "usage: testskew [-vqm] freq ival\n");
     exit(1);
 }
+
+#define silence(msg) (!(qflag) ? (msg) : "")
 
 int
 main(int argc, char * const argv[])
 {
     void *prd;
-    int i, ch, vflag;
+    int i, ch, vflag, qflag, mflag;
     double freq, duration, skew;
-    time_t ncycles;
+    time_t ncycles, mcycles;
 
     vflag = 0;
-    while ((ch = getopt(argc, argv, "v")) != -1) {
+    qflag = 0;
+    mflag = 0;
+    while ((ch = getopt(argc, argv, "vqm")) != -1) {
          switch (ch) {
          case 'v':
              vflag = 1;
+             break;
+
+         case 'q':
+             qflag = 1;
+             break;
+
+         case 'm':
+             mflag = 1;
              break;
 
          case '?':
@@ -54,8 +66,13 @@ main(int argc, char * const argv[])
     if (vflag != 0) {
          printf("\n");
     }
-    skew = 1.0 - ((double)ncycles / (freq * duration));
-    printf("skew %f%%\n", skew * 100.0);
+    if (mflag == 0) {
+        skew = 1.0 - ((double)ncycles / (freq * duration));
+        printf("%s%f%s\n", silence("skew: "), skew * 100.0, silence("%%"));
+    } else {
+        mcycles = ncycles - (freq * duration);
+        printf("%s%jd\n", silence("missed cycles: "), (intmax_t)mcycles);
+    }
 
     return (0);
 }
