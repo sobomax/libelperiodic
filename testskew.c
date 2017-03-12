@@ -21,14 +21,15 @@ int
 main(int argc, char * const argv[])
 {
     void *prd;
-    int i, ch, vflag, qflag, mflag;
+    int i, ch, vflag, qflag, mflag, Sflag;
     double freq, duration, skew;
     time_t ncycles, mcycles;
 
     vflag = 0;
     qflag = 0;
     mflag = 0;
-    while ((ch = getopt(argc, argv, "vqm")) != -1) {
+    Sflag = 0;
+    while ((ch = getopt(argc, argv, "vqmS")) != -1) {
          switch (ch) {
          case 'v':
              vflag = 1;
@@ -40,6 +41,10 @@ main(int argc, char * const argv[])
 
          case 'm':
              mflag = 1;
+             break;
+
+         case 'S':
+             Sflag = 1;
              break;
 
          case '?':
@@ -68,7 +73,11 @@ main(int argc, char * const argv[])
     }
     if (mflag == 0) {
         skew = 1.0 - ((double)ncycles / (freq * duration));
-        printf("%s%f%s\n", silence("skew: "), skew * 100.0, silence("%%"));
+        if (Sflag == 0) {
+            printf("%s%f%s\n", silence("skew: "), skew * 100.0, silence("%"));
+        } else {
+            printf("%s%d\n", silence("skew: "), (int)(skew * 100000.0));
+        }
     } else {
         mcycles = ncycles - (freq * duration);
         printf("%s%jd\n", silence("missed cycles: "), (intmax_t)mcycles);
