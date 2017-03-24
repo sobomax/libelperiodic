@@ -10,4 +10,4 @@ ${CC} --version
 ./configure
 make all
 cd src
-./findskew.sh
+sh -x ./findskew.sh
