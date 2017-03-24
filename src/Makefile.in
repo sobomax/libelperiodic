@@ -213,6 +213,7 @@ PACKAGE_URL = @PACKAGE_URL@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 RANLIB = @RANLIB@
+RT_LIB = @RT_LIB@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
@@ -251,7 +252,6 @@ pdfdir = @pdfdir@
 prefix = @prefix@
 program_transform_name = @program_transform_name@
 psdir = @psdir@
-runstatedir = @runstatedir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
@@ -266,7 +266,7 @@ libelperiodic_a_SOURCES = elperiodic.h periodic.c prdic_math.c prdic_math.h \
 
 libelperiodic_a_CFLAGS = -g3 -O0 -fPIC
 testskew_SOURCES = testskew.c
-testskew_LDADD = $(top_srcdir)/src/libelperiodic.a -lm
+testskew_LDADD = $(top_srcdir)/src/libelperiodic.a -lm @RT_LIB@
 all: all-am
 
 .SUFFIXES:
