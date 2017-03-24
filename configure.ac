@@ -5,4 +5,9 @@ AM_INIT_AUTOMAKE
 AC_PROG_CC
 AC_PROG_RANLIB
 
+AC_CHECK_FUNC(clock_gettime, [], [
+  AC_CHECK_LIB(rt, clock_gettime, RT_LIB="-lrt",
+    AC_MSG_ERROR(Unable to find clock_gettime function; required by ocount))])
+AC_SUBST(RT_LIB)
+
 AC_OUTPUT(Makefile src/Makefile)
