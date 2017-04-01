@@ -1,6 +1,8 @@
 AC_INIT(libelperiodic, 1.0, sobomax@sippysoft.com)
 
 AM_INIT_AUTOMAKE
+AM_MAINTAINER_MODE([disable])
+
 LT_INIT
 
 AC_PROG_CC
