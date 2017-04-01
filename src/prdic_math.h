@@ -57,8 +57,8 @@ struct PFD {
 double sigmoid(double);
 
 double recfilter_apply(struct recfilter *, double);
-double recfilter_apply_int(struct recfilter *, int);
 void recfilter_init(struct recfilter *, double, double, int);
+void recfilter_adjust(struct recfilter *, double);
 
 void PFD_init(struct PFD *);
 double PFD_get_error(struct PFD *, const struct timespec *);

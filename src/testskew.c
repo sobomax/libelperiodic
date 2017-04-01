@@ -23,14 +23,15 @@ main(int argc, char * const argv[])
 {
     void *prd;
     int i, ch, vflag, qflag, mflag, Sflag;
-    double freq, duration, skew;
+    double freq, duration, skew, fval;
     time_t ncycles, mcycles;
 
     vflag = 0;
     qflag = 0;
     mflag = 0;
     Sflag = 0;
-    while ((ch = getopt(argc, argv, "vqmS")) != -1) {
+    fval = 0.0;
+    while ((ch = getopt(argc, argv, "vqmSf:")) != -1) {
          switch (ch) {
          case 'v':
              vflag = 1;
@@ -48,6 +49,10 @@ main(int argc, char * const argv[])
              Sflag = 1;
              break;
 
+         case 'f':
+             fval = atof(optarg);
+             break;
+
          case '?':
          default:
              usage();
@@ -61,6 +66,9 @@ main(int argc, char * const argv[])
     freq = atof(argv[0]);
     duration = atof(argv[1]);
     prd = prdic_init(freq, 0.0);
+    if (fval != 0.0) {
+        prdic_set_fparams(prd, fval);
+    }
     for (i = 0; i < (freq * duration); i++) {
         prdic_procrastinate(prd);
         ncycles = prdic_getncycles_ref(prd);

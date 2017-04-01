@@ -25,6 +25,7 @@
  */
 
 #include <sys/time.h>
+#include <assert.h>
 #include <math.h>
 #include <string.h>
 
@@ -84,28 +85,12 @@ recfilter_apply(struct recfilter *f, double x)
     return f->lastval;
 }
 
-double
-recfilter_apply_int(struct recfilter *f, int x)
-{
-
-    f->lastval = f->a * (double)(x) + f->b * f->lastval;
-    if (f->peak_detect != 0) {
-        if (f->lastval > f->maxval) {
-            f->maxval = f->lastval;
-        } if (f->lastval < f->minval) {
-            f->minval = f->lastval;
-        }
-    }
-    return f->lastval;
-}
-
 void
 recfilter_init(struct recfilter *f, double fcoef, double initval, int peak_detect)
 {
 
     f->lastval = initval;
-    f->a = 1.0 - fcoef;
-    f->b = fcoef;
+    recfilter_adjust(f, fcoef);
     if (peak_detect != 0) {
         f->peak_detect = 1;
         f->maxval = initval;
@@ -115,6 +100,15 @@ recfilter_init(struct recfilter *f, double fcoef, double initval, int peak_detec
         f->maxval = 0;
         f->minval = 0;
     }
+}
+
+void
+recfilter_adjust(struct recfilter *f, double fcoef)
+{
+
+    assert(fcoef < 1.0 && fcoef > 0.0);
+    f->a = 1.0 - fcoef;
+    f->b = fcoef;
 }
 
 double

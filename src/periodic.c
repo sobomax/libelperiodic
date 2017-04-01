@@ -25,6 +25,7 @@
  */
 
 #include <sys/time.h>
+#include <assert.h>
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
@@ -129,6 +130,16 @@ prdic_procrastinate(void *prdic_inst)
         recfilter_apply(&pip->loop_error, sigmoid(eval));
     }
     return (0);
+}
+
+void
+prdic_set_fparams(void *prdic_inst, double fcoef)
+{
+    struct prdic_inst *pip;
+
+    pip = (struct prdic_inst *)prdic_inst;
+    assert(pip->loop_error.lastval == 0.0);
+    recfilter_adjust(&pip->loop_error, fcoef);    
 }
 
 time_t
