@@ -1,6 +1,7 @@
 AC_INIT(libelperiodic, 1.0, sobomax@sippysoft.com)
 
 AM_INIT_AUTOMAKE
+LT_INIT
 
 AC_PROG_CC
 AC_PROG_RANLIB
