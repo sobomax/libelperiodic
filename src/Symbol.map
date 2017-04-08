@@ -3,15 +3,14 @@
  */
 
 LIBELPERIODIC_20160708115711 {
-    prdic_init;
-    prdic_procrastinate;
-    prdic_free;
+    global: prdic_init; prdic_procrastinate; prdic_free;
+    local: *;
 };
 
 LIBELPERIODIC_20160921155900 {
-    prdic_getncycles_ref;
-};
+    global: prdic_getncycles_ref;
+} LIBELPERIODIC_20160708115711;
 
 LIBELPERIODIC_20170401084300 {
-    prdic_set_fparams;
-};
+    global: prdic_set_fparams;
+} LIBELPERIODIC_20160921155900;
