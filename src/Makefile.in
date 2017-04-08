@@ -99,25 +99,51 @@ DIST_COMMON = $(srcdir)/Makefile.am $(am__DIST_COMMON)
 mkinstalldirs = $(install_sh) -d
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
-LIBRARIES = $(noinst_LIBRARIES)
-ARFLAGS = cru
-AM_V_AR = $(am__v_AR_@AM_V@)
-am__v_AR_ = $(am__v_AR_@AM_DEFAULT_V@)
-am__v_AR_0 = @echo "  AR      " $@;
-am__v_AR_1 = 
-libelperiodic_a_AR = $(AR) $(ARFLAGS)
-libelperiodic_a_LIBADD =
-am_libelperiodic_a_OBJECTS = libelperiodic_a-periodic.$(OBJEXT) \
-	libelperiodic_a-prdic_math.$(OBJEXT)
-libelperiodic_a_OBJECTS = $(am_libelperiodic_a_OBJECTS)
-PROGRAMS = $(noinst_PROGRAMS)
-am_testskew_OBJECTS = testskew.$(OBJEXT)
-testskew_OBJECTS = $(am_testskew_OBJECTS)
-testskew_DEPENDENCIES = libelperiodic.a
+am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
+am__vpath_adj = case $$p in \
+    $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
+    *) f=$$p;; \
+  esac;
+am__strip_dir = f=`echo $$p | sed -e 's|^.*/||'`;
+am__install_max = 40
+am__nobase_strip_setup = \
+  srcdirstrip=`echo "$(srcdir)" | sed 's/[].[^$$\\*|]/\\\\&/g'`
+am__nobase_strip = \
+  for p in $$list; do echo "$$p"; done | sed -e "s|$$srcdirstrip/||"
+am__nobase_list = $(am__nobase_strip_setup); \
+  for p in $$list; do echo "$$p $$p"; done | \
+  sed "s| $$srcdirstrip/| |;"' / .*\//!s/ .*/ ./; s,\( .*\)/[^/]*$$,\1,' | \
+  $(AWK) 'BEGIN { files["."] = "" } { files[$$2] = files[$$2] " " $$1; \
+    if (++n[$$2] == $(am__install_max)) \
+      { print $$2, files[$$2]; n[$$2] = 0; files[$$2] = "" } } \
+    END { for (dir in files) print dir, files[dir] }'
+am__base_list = \
+  sed '$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;s/\n/ /g' | \
+  sed '$$!N;$$!N;$$!N;$$!N;s/\n/ /g'
+am__uninstall_files_from_dir = { \
+  test -z "$$files" \
+    || { test ! -d "$$dir" && test ! -f "$$dir" && test ! -r "$$dir"; } \
+    || { echo " ( cd '$$dir' && rm -f" $$files ")"; \
+         $(am__cd) "$$dir" && rm -f $$files; }; \
+  }
+am__installdirs = "$(DESTDIR)$(libdir)"
+LTLIBRARIES = $(lib_LTLIBRARIES)
+libelperiodic_la_LIBADD =
+am_libelperiodic_la_OBJECTS = libelperiodic_la-periodic.lo \
+	libelperiodic_la-prdic_math.lo
+libelperiodic_la_OBJECTS = $(am_libelperiodic_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
+libelperiodic_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(libelperiodic_la_CFLAGS) $(CFLAGS) \
+	$(libelperiodic_la_LDFLAGS) $(LDFLAGS) -o $@
+PROGRAMS = $(noinst_PROGRAMS)
+am_testskew_OBJECTS = testskew.$(OBJEXT)
+testskew_OBJECTS = $(am_testskew_OBJECTS)
+testskew_DEPENDENCIES = libelperiodic.la
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -152,8 +178,8 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(libelperiodic_a_SOURCES) $(testskew_SOURCES)
-DIST_SOURCES = $(libelperiodic_a_SOURCES) $(testskew_SOURCES)
+SOURCES = $(libelperiodic_la_SOURCES) $(testskew_SOURCES)
+DIST_SOURCES = $(libelperiodic_la_SOURCES) $(testskew_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -297,13 +323,14 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-noinst_LIBRARIES = libelperiodic.a
-libelperiodic_a_SOURCES = elperiodic.h periodic.c prdic_math.c prdic_math.h \
- prdic_timespecops.h
+lib_LTLIBRARIES = libelperiodic.la
+libelperiodic_la_SOURCES = periodic.c prdic_math.c \
+  elperiodic.h prdic_math.h prdic_timespecops.h
 
-libelperiodic_a_CFLAGS = -g3 -O0 -fPIC
+libelperiodic_la_CFLAGS = -g3 -O0 -fPIC
+libelperiodic_la_LDFLAGS = -Wl,--version-script=$(srcdir)/Symbol.map
 testskew_SOURCES = testskew.c
-testskew_LDADD = libelperiodic.a -lm @RT_LIB@
+testskew_LDADD = libelperiodic.la -lm @RT_LIB@
 all: all-am
 
 .SUFFIXES:
@@ -338,13 +365,43 @@ $(ACLOCAL_M4): @MAINTAINER_MODE_TRUE@ $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(am__aclocal_m4_deps):
 
-clean-noinstLIBRARIES:
-	-test -z "$(noinst_LIBRARIES)" || rm -f $(noinst_LIBRARIES)
+install-libLTLIBRARIES: $(lib_LTLIBRARIES)
+	@$(NORMAL_INSTALL)
+	@list='$(lib_LTLIBRARIES)'; test -n "$(libdir)" || list=; \
+	list2=; for p in $$list; do \
+	  if test -f $$p; then \
+	    list2="$$list2 $$p"; \
+	  else :; fi; \
+	done; \
+	test -z "$$list2" || { \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(libdir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(libdir)" || exit 1; \
+	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 '$(DESTDIR)$(libdir)'"; \
+	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 "$(DESTDIR)$(libdir)"; \
+	}
 
-libelperiodic.a: $(libelperiodic_a_OBJECTS) $(libelperiodic_a_DEPENDENCIES) $(EXTRA_libelperiodic_a_DEPENDENCIES) 
-	$(AM_V_at)-rm -f libelperiodic.a
-	$(AM_V_AR)$(libelperiodic_a_AR) libelperiodic.a $(libelperiodic_a_OBJECTS) $(libelperiodic_a_LIBADD)
-	$(AM_V_at)$(RANLIB) libelperiodic.a
+uninstall-libLTLIBRARIES:
+	@$(NORMAL_UNINSTALL)
+	@list='$(lib_LTLIBRARIES)'; test -n "$(libdir)" || list=; \
+	for p in $$list; do \
+	  $(am__strip_dir) \
+	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=uninstall rm -f '$(DESTDIR)$(libdir)/$$f'"; \
+	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=uninstall rm -f "$(DESTDIR)$(libdir)/$$f"; \
+	done
+
+clean-libLTLIBRARIES:
+	-test -z "$(lib_LTLIBRARIES)" || rm -f $(lib_LTLIBRARIES)
+	@list='$(lib_LTLIBRARIES)'; \
+	locs=`for p in $$list; do echo $$p; done | \
+	      sed 's|^[^/]*$$|.|; s|/[^/]*$$||; s|$$|/so_locations|' | \
+	      sort -u`; \
+	test -z "$$locs" || { \
+	  echo rm -f $${locs}; \
+	  rm -f $${locs}; \
+	}
+
+libelperiodic.la: $(libelperiodic_la_OBJECTS) $(libelperiodic_la_DEPENDENCIES) $(EXTRA_libelperiodic_la_DEPENDENCIES) 
+	$(AM_V_CCLD)$(libelperiodic_la_LINK) -rpath $(libdir) $(libelperiodic_la_OBJECTS) $(libelperiodic_la_LIBADD) $(LIBS)
 
 clean-noinstPROGRAMS:
 	@list='$(noinst_PROGRAMS)'; test -n "$$list" || exit 0; \
@@ -365,8 +422,8 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libelperiodic_a-periodic.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libelperiodic_a-prdic_math.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libelperiodic_la-periodic.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libelperiodic_la-prdic_math.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/testskew.Po@am__quote@
 
 .c.o:
@@ -390,33 +447,19 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LTCOMPILE) -c -o $@ $<
 
-libelperiodic_a-periodic.o: periodic.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libelperiodic_a_CFLAGS) $(CFLAGS) -MT libelperiodic_a-periodic.o -MD -MP -MF $(DEPDIR)/libelperiodic_a-periodic.Tpo -c -o libelperiodic_a-periodic.o `test -f 'periodic.c' || echo '$(srcdir)/'`periodic.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libelperiodic_a-periodic.Tpo $(DEPDIR)/libelperiodic_a-periodic.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='periodic.c' object='libelperiodic_a-periodic.o' libtool=no @AMDEPBACKSLASH@
+libelperiodic_la-periodic.lo: periodic.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libelperiodic_la_CFLAGS) $(CFLAGS) -MT libelperiodic_la-periodic.lo -MD -MP -MF $(DEPDIR)/libelperiodic_la-periodic.Tpo -c -o libelperiodic_la-periodic.lo `test -f 'periodic.c' || echo '$(srcdir)/'`periodic.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libelperiodic_la-periodic.Tpo $(DEPDIR)/libelperiodic_la-periodic.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='periodic.c' object='libelperiodic_la-periodic.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libelperiodic_a_CFLAGS) $(CFLAGS) -c -o libelperiodic_a-periodic.o `test -f 'periodic.c' || echo '$(srcdir)/'`periodic.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libelperiodic_la_CFLAGS) $(CFLAGS) -c -o libelperiodic_la-periodic.lo `test -f 'periodic.c' || echo '$(srcdir)/'`periodic.c
 
-libelperiodic_a-periodic.obj: periodic.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libelperiodic_a_CFLAGS) $(CFLAGS) -MT libelperiodic_a-periodic.obj -MD -MP -MF $(DEPDIR)/libelperiodic_a-periodic.Tpo -c -o libelperiodic_a-periodic.obj `if test -f 'periodic.c'; then $(CYGPATH_W) 'periodic.c'; else $(CYGPATH_W) '$(srcdir)/periodic.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libelperiodic_a-periodic.Tpo $(DEPDIR)/libelperiodic_a-periodic.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='periodic.c' object='libelperiodic_a-periodic.obj' libtool=no @AMDEPBACKSLASH@
+libelperiodic_la-prdic_math.lo: prdic_math.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libelperiodic_la_CFLAGS) $(CFLAGS) -MT libelperiodic_la-prdic_math.lo -MD -MP -MF $(DEPDIR)/libelperiodic_la-prdic_math.Tpo -c -o libelperiodic_la-prdic_math.lo `test -f 'prdic_math.c' || echo '$(srcdir)/'`prdic_math.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libelperiodic_la-prdic_math.Tpo $(DEPDIR)/libelperiodic_la-prdic_math.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='prdic_math.c' object='libelperiodic_la-prdic_math.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libelperiodic_a_CFLAGS) $(CFLAGS) -c -o libelperiodic_a-periodic.obj `if test -f 'periodic.c'; then $(CYGPATH_W) 'periodic.c'; else $(CYGPATH_W) '$(srcdir)/periodic.c'; fi`
-
-libelperiodic_a-prdic_math.o: prdic_math.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libelperiodic_a_CFLAGS) $(CFLAGS) -MT libelperiodic_a-prdic_math.o -MD -MP -MF $(DEPDIR)/libelperiodic_a-prdic_math.Tpo -c -o libelperiodic_a-prdic_math.o `test -f 'prdic_math.c' || echo '$(srcdir)/'`prdic_math.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libelperiodic_a-prdic_math.Tpo $(DEPDIR)/libelperiodic_a-prdic_math.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='prdic_math.c' object='libelperiodic_a-prdic_math.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libelperiodic_a_CFLAGS) $(CFLAGS) -c -o libelperiodic_a-prdic_math.o `test -f 'prdic_math.c' || echo '$(srcdir)/'`prdic_math.c
-
-libelperiodic_a-prdic_math.obj: prdic_math.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libelperiodic_a_CFLAGS) $(CFLAGS) -MT libelperiodic_a-prdic_math.obj -MD -MP -MF $(DEPDIR)/libelperiodic_a-prdic_math.Tpo -c -o libelperiodic_a-prdic_math.obj `if test -f 'prdic_math.c'; then $(CYGPATH_W) 'prdic_math.c'; else $(CYGPATH_W) '$(srcdir)/prdic_math.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libelperiodic_a-prdic_math.Tpo $(DEPDIR)/libelperiodic_a-prdic_math.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='prdic_math.c' object='libelperiodic_a-prdic_math.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libelperiodic_a_CFLAGS) $(CFLAGS) -c -o libelperiodic_a-prdic_math.obj `if test -f 'prdic_math.c'; then $(CYGPATH_W) 'prdic_math.c'; else $(CYGPATH_W) '$(srcdir)/prdic_math.c'; fi`
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libelperiodic_la_CFLAGS) $(CFLAGS) -c -o libelperiodic_la-prdic_math.lo `test -f 'prdic_math.c' || echo '$(srcdir)/'`prdic_math.c
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -508,8 +551,11 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-am
-all-am: Makefile $(LIBRARIES) $(PROGRAMS)
+all-am: Makefile $(LTLIBRARIES) $(PROGRAMS)
 installdirs:
+	for dir in "$(DESTDIR)$(libdir)"; do \
+	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
+	done
 install: install-am
 install-exec: install-exec-am
 install-data: install-data-am
@@ -542,7 +588,7 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-am
 
-clean-am: clean-generic clean-libtool clean-noinstLIBRARIES \
+clean-am: clean-generic clean-libLTLIBRARIES clean-libtool \
 	clean-noinstPROGRAMS mostlyclean-am
 
 distclean: distclean-am
@@ -569,7 +615,7 @@ install-dvi: install-dvi-am
 
 install-dvi-am:
 
-install-exec-am:
+install-exec-am: install-libLTLIBRARIES
 
 install-html: install-html-am
 
@@ -609,23 +655,24 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am:
+uninstall-am: uninstall-libLTLIBRARIES
 
 .MAKE: install-am install-strip
 
 .PHONY: CTAGS GTAGS TAGS all all-am check check-am clean clean-generic \
-	clean-libtool clean-noinstLIBRARIES clean-noinstPROGRAMS \
+	clean-libLTLIBRARIES clean-libtool clean-noinstPROGRAMS \
 	cscopelist-am ctags ctags-am distclean distclean-compile \
 	distclean-generic distclean-libtool distclean-tags distdir dvi \
 	dvi-am html html-am info info-am install install-am \
 	install-data install-data-am install-dvi install-dvi-am \
 	install-exec install-exec-am install-html install-html-am \
-	install-info install-info-am install-man install-pdf \
-	install-pdf-am install-ps install-ps-am install-strip \
-	installcheck installcheck-am installdirs maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-compile \
-	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
-	tags tags-am uninstall uninstall-am
+	install-info install-info-am install-libLTLIBRARIES \
+	install-man install-pdf install-pdf-am install-ps \
+	install-ps-am install-strip installcheck installcheck-am \
+	installdirs maintainer-clean maintainer-clean-generic \
+	mostlyclean mostlyclean-compile mostlyclean-generic \
+	mostlyclean-libtool pdf pdf-am ps ps-am tags tags-am uninstall \
+	uninstall-am uninstall-libLTLIBRARIES
 
 .PRECIOUS: Makefile
 
