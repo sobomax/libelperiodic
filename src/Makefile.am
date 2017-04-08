@@ -1,10 +1,10 @@
-noinst_LIBRARIES = libelperiodic.a
-libelperiodic_a_SOURCES = elperiodic.h periodic.c prdic_math.c prdic_math.h \
- prdic_timespecops.h
-libelperiodic_a_CFLAGS = -g3 -O0 -fPIC
-#libelperiodic_a_LDFLAGS = -Wl,--version-script=$(srcdir)/src/Symbol.map
+lib_LTLIBRARIES = libelperiodic.la
+libelperiodic_la_SOURCES = periodic.c prdic_math.c \
+  elperiodic.h prdic_math.h prdic_timespecops.h
+libelperiodic_la_CFLAGS = -g3 -O0 -fPIC
+libelperiodic_la_LDFLAGS = -Wl,--version-script=$(srcdir)/Symbol.map
 
 noinst_PROGRAMS = testskew
 testskew_SOURCES = testskew.c
-testskew_LDADD = libelperiodic.a -lm @RT_LIB@
+testskew_LDADD = libelperiodic.la -lm @RT_LIB@
 
