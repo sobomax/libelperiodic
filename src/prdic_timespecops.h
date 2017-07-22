@@ -64,15 +64,18 @@
         }                                                             \
     } while (0);
 
-#define timespecmul(rvp, vvp, uvp)                          \
-    do {                                                    \
-        SEC(rvp) = SEC(vvp) * SEC(uvp);                     \
-        NSEC(rvp) = (NSEC(vvp) * NSEC(uvp)) / NSEC_IN_SEC;  \
-        NSEC(rvp) += (SEC(vvp) * NSEC(uvp));                \
-        NSEC(rvp) += (SEC(uvp) * NSEC(vvp));                \
-        if (NSEC(rvp) >= NSEC_IN_SEC) {                     \
-            SEC(rvp) += (NSEC(rvp) / NSEC_IN_SEC);          \
-            NSEC(rvp) = (NSEC(rvp) % NSEC_IN_SEC);          \
-        }                                                   \
+#define timespecmul(rvp, vvp, uvp)                                 \
+    do {                                                           \
+        long long tnsec;                                           \
+        SEC(rvp) = SEC(vvp) * SEC(uvp);                            \
+        tnsec = (long long)(NSEC(vvp) * NSEC(uvp)) / NSEC_IN_SEC;  \
+        tnsec += (long long)(SEC(vvp) * NSEC(uvp));                \
+        tnsec += (long long)(SEC(uvp) * NSEC(vvp));                \
+        if (tnsec >= NSEC_IN_SEC) {                                \
+            SEC(rvp) += (tnsec / NSEC_IN_SEC);                     \
+            NSEC(rvp) = (tnsec % NSEC_IN_SEC);                     \
+        } else {                                                   \
+            NSEC(rvp) = tnsec;                                     \
+        }                                                          \
     } while (0)
 #endif
