@@ -39,7 +39,7 @@
         SEC(vvp) += SEC(uvp);           \
         NSEC(vvp) += NSEC(uvp);         \
         if (NSEC(vvp) >= NSEC_IN_SEC) { \
-            SEC(vvp)--;                 \
+            SEC(vvp)++;                 \
             NSEC(vvp) -= NSEC_IN_SEC;   \
         }                               \
     } while (0)
