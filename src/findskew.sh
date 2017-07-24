@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 freq=20000
 min_good=0
 max_bad=0
