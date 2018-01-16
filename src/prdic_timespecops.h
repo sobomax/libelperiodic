@@ -33,6 +33,12 @@
 
 #define timespec2dtime(s) ((double)SEC(s) + \
   (double)NSEC(s) / (double)NSEC_IN_SEC)
+#define dtime2timespec(d, tp)                                      \
+    do {                                                           \
+        SEC(tp) = trunc(d);                                        \
+        NSEC(tp) = round((double)NSEC_IN_SEC * ((d) - SEC(tp)));   \
+    } while (0)
+
 #define timespeciszero(t) (SEC(t) == 0 && NSEC(t) == 0)
 #define timespecadd(vvp, uvp)           \
     do {                                \

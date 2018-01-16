@@ -31,6 +31,9 @@ void *prdic_init(double freq_hz, double off_from_now);
 int prdic_procrastinate(void *prdic_inst);
 time_t prdic_getncycles_ref(void *);
 void prdic_set_fparams(void *, double);
+void prdic_set_epoch(void *, struct timespec *);
 void prdic_free(void *prdic_inst);
+int prdic_addband(void *prdic_inst, double freq_hz);
+void prdic_useband(void *prdic_inst, int bnum);
 
 #endif
