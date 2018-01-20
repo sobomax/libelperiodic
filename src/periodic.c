@@ -186,13 +186,21 @@ prdic_procrastinate(void *prdic_inst)
     struct prdic_inst *pip;
     struct timespec tsleep, tremain;
     int rval;
-    double add_delay, eval;
+    double eval;
     struct timespec eptime;
+#if defined(PRD_DEBUG)
+    static long long nrun = -1;
+
+    nrun += 1;
+#endif
 
     pip = (struct prdic_inst *)prdic_inst;
 
-    add_delay = freqoff_to_period(pip->ab->freq_hz, 1.0, pip->ab->loop_error.lastval);
-    dtime2timespec(add_delay, &tremain);
+    eval = pip->ab->loop_error.lastval - 0.5;
+    if (eval <= 0.0)
+        goto skipdelay;
+
+    dtime2timespec(15.0 * eval / pip->ab->freq_hz, &tremain);
 
     do {
         tsleep = tremain;
@@ -200,12 +208,22 @@ prdic_procrastinate(void *prdic_inst)
         rval = nanosleep(&tsleep, &tremain);
     } while (rval < 0 && !timespeciszero(&tremain));
 
+skipdelay:
     getttime(&eptime, 1);
 
     timespecsub(&eptime, &pip->ab->epoch);
     timespecmul(&pip->ab->last_tclk, &eptime, &pip->ab->tfreq_hz);
 
     eval = PFD_get_error(&pip->ab->phase_detector, &pip->ab->last_tclk);
+    if (eval != 0.0) {
+        eval = pip->ab->loop_error.lastval + erf(eval - pip->ab->loop_error.lastval);
+        recfilter_apply(&pip->ab->loop_error, eval);
+    }
+
+#if defined(PRD_DEBUG)
+    fprintf(stderr, "run=%lld raw_error=%f filtered_error=%f\n", nrun, eval, pip->ab->loop_error.lastval);
+    fflush(stderr);
+#endif
 
 #if defined(PRD_DEBUG)
     fprintf(stderr, "error=%f\n", eval);
@@ -215,9 +233,6 @@ prdic_procrastinate(void *prdic_inst)
     fflush(stderr);
 #endif
 
-    if (eval != 0.0) {
-        recfilter_apply(&pip->ab->loop_error, sigmoid(eval));
-    }
     return (0);
 }
 
