@@ -3,7 +3,7 @@ AC_INIT(libelperiodic, 1.0, sobomax@sippysoft.com)
 AM_INIT_AUTOMAKE
 AM_MAINTAINER_MODE([disable])
 
-LT_INIT
+LT_INIT([disable-shared])
 
 AC_PROG_CC
 AC_PROG_RANLIB
