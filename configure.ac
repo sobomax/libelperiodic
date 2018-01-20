@@ -6,7 +6,7 @@ AM_PATH_PYTHON([2.7],, [:])
 
 AC_PROG_CC
 
-LT_INIT
+LT_INIT([disable-shared])
 
 mydef_version=`git describe --always --dirty || date "+%Y%m%d%H%M%S"`
 AC_DEFINE_UNQUOTED([VERSION_GIT], ["$mydef_version"])
