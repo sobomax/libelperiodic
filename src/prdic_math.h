@@ -50,7 +50,7 @@ struct recfilter {
 };
 
 struct PFD {
-    struct timespec target_tclk;
+    struct timespec last_tclk;
 };
 
 /* Function prototypes */
