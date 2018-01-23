@@ -43,24 +43,16 @@ double
 PFD_get_error(struct PFD *pfd_p, const struct timespec *tclk)
 {
     double err0r;
-    struct timespec next_tclk, ttclk;
+    struct timespec ttclk;
 
-    SEC(&next_tclk) = SEC(tclk) + 1;
-    NSEC(&next_tclk) = 0;
-    if (timespeciszero(&pfd_p->target_tclk)) {
-        pfd_p->target_tclk = next_tclk;
+    if (timespeciszero(&pfd_p->last_tclk)) {
+        pfd_p->last_tclk = *tclk;
         return (0.0);
     }
-
-    timespecsub2(&ttclk, &pfd_p->target_tclk, tclk);
+    timespecsub2(&ttclk, tclk, &pfd_p->last_tclk);
     err0r = timespec2dtime(&ttclk);
-
-    pfd_p->target_tclk = next_tclk;
-    if (err0r > 0) {
-        SEC(&pfd_p->target_tclk) += 1;
-    }
-
-    return (err0r);
+    pfd_p->last_tclk = *tclk;
+    return (1.0 - err0r);
 }
 
 double
