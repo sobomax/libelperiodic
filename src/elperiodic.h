@@ -35,5 +35,6 @@ void prdic_set_epoch(void *, struct timespec *);
 void prdic_free(void *prdic_inst);
 int prdic_addband(void *prdic_inst, double freq_hz);
 void prdic_useband(void *prdic_inst, int bnum);
+double prdic_getload(void *);
 
 #endif
