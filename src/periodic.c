@@ -102,7 +102,7 @@ band_init(struct prdic_band *bp, double freq_hz)
     dtime2timespec(freq_hz, &bp->tfreq_hz);
     recfilter_init(&bp->loop_error, 0.96, 0.0, 0);
     recfilter_init(&bp->add_delay_fltrd, 0.96, bp->period, 0);
-    recfilter_init(&bp->sysload_fltrd, 0.99, 0.0, 0);
+    recfilter_init(&bp->sysload_fltrd, 0.995, 0.0, 0);
     PFD_init(&bp->phase_detector);
 }
 
@@ -284,6 +284,15 @@ prdic_getncycles_ref(void *prdic_inst)
 
     pip = (struct prdic_inst *)prdic_inst;
     return (SEC(&pip->ab->last_tclk));
+}
+
+double
+prdic_getload(void *prdic_inst)
+{
+    struct prdic_inst *pip;
+
+    pip = (struct prdic_inst *)prdic_inst;
+    return (pip->ab->sysload_fltrd.lastval);
 }
 
 void
