@@ -102,7 +102,7 @@ band_init(struct prdic_band *bp, double freq_hz)
     dtime2timespec(freq_hz, &bp->tfreq_hz);
     recfilter_init(&bp->loop_error, 0.96, 0.0, 0);
     recfilter_init(&bp->add_delay_fltrd, 0.96, bp->period, 0);
-    recfilter_init(&bp->sysload_fltrd, 0.995, 0.0, 0);
+    recfilter_init(&bp->sysload_fltrd, 0.997, 0.0, 0);
     PFD_init(&bp->phase_detector);
 }
 
