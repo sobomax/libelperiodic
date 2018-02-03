@@ -33,7 +33,12 @@ class timespec(Structure):
         ('tv_nsec', c_long)
     ]
 
-_elpl = cdll.LoadLibrary('libelperiodic.so')
+try:
+    _elpl = cdll.LoadLibrary('libelperiodic.so')
+except OSError:
+    from ctypes.util import find_library
+    from ctypes import CDLL
+    _elpl = CDLL(find_library('elperiodic'))
 _elpl.prdic_init.argtypes = [c_double, c_double]
 _elpl.prdic_init.restype = c_void_p
 _elpl.prdic_procrastinate.argtypes = [c_void_p,]
