@@ -46,10 +46,10 @@ struct prdic_band {
     struct timespec tperiod;
     struct timespec tfreq_hz;
     struct timespec epoch;
-    struct recfilter loop_error;
-    struct recfilter sysload_fltrd;
-    struct recfilter add_delay_fltrd;
-    struct PFD phase_detector;
+    struct _prdic_recfilter loop_error;
+    struct _prdic_recfilter sysload_fltrd;
+    struct _prdic_recfilter add_delay_fltrd;
+    struct _prdic_PFD phase_detector;
     struct timespec last_tclk;
     double add_delay;
     struct prdic_band *next;
@@ -100,10 +100,10 @@ band_init(struct prdic_band *bp, double freq_hz)
     bp->period = 1.0 / freq_hz;
     dtime2timespec(bp->period, &bp->tperiod);
     dtime2timespec(freq_hz, &bp->tfreq_hz);
-    recfilter_init(&bp->loop_error, 0.96, 0.0, 0);
-    recfilter_init(&bp->add_delay_fltrd, 0.96, bp->period, 0);
-    recfilter_init(&bp->sysload_fltrd, 0.997, 0.0, 0);
-    PFD_init(&bp->phase_detector);
+    _prdic_recfilter_init(&bp->loop_error, 0.96, 0.0, 0);
+    _prdic_recfilter_init(&bp->add_delay_fltrd, 0.96, bp->period, 0);
+    _prdic_recfilter_init(&bp->sysload_fltrd, 0.997, 0.0, 0);
+    _prdic_PFD_init(&bp->phase_detector);
 }
 
 void *
@@ -224,11 +224,11 @@ skipdelay:
     timespecsub(&eptime, &pip->ab->epoch);
     timespecmul(&pip->ab->last_tclk, &eptime, &pip->ab->tfreq_hz);
 
-    eval = PFD_get_error(&pip->ab->phase_detector, &pip->ab->last_tclk);
+    eval = _prdic_PFD_get_error(&pip->ab->phase_detector, &pip->ab->last_tclk);
     eval = pip->ab->loop_error.lastval + erf(eval - pip->ab->loop_error.lastval);
-    recfilter_apply(&pip->ab->loop_error, eval);
+    _prdic_recfilter_apply(&pip->ab->loop_error, eval);
     pip->ab->add_delay = pip->ab->add_delay_fltrd.lastval + (eval * pip->ab->period);
-    recfilter_apply(&pip->ab->add_delay_fltrd, pip->ab->add_delay);
+    _prdic_recfilter_apply(&pip->ab->add_delay_fltrd, pip->ab->add_delay);
     if (pip->ab->add_delay_fltrd.lastval < 0.0) {
         pip->ab->add_delay_fltrd.lastval = 0;
     } else if (pip->ab->add_delay_fltrd.lastval > pip->ab->period) {
@@ -239,7 +239,7 @@ skipdelay:
     } else {
         teval = 1.0 - pip->ab->loop_error.lastval;
     }
-    recfilter_apply(&pip->ab->sysload_fltrd, teval);
+    _prdic_recfilter_apply(&pip->ab->sysload_fltrd, teval);
 
 #if defined(PRD_DEBUG)
     fprintf(stderr, "run=%lld raw_error=%f filtered_error=%f teval=%f filtered_teval=%f\n", nrun,
@@ -265,7 +265,7 @@ prdic_set_fparams(void *prdic_inst, double fcoef)
 
     pip = (struct prdic_inst *)prdic_inst;
     assert(pip->ab->loop_error.lastval == 0.0);
-    recfilter_adjust(&pip->ab->loop_error, fcoef);
+    _prdic_recfilter_adjust(&pip->ab->loop_error, fcoef);
 }
 
 void
