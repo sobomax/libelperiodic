@@ -1,4 +1,4 @@
-lib_LTLIBRARIES = libelperiodic.la
+noinst_LTLIBRARIES = libelperiodic.la
 libelperiodic_la_SOURCES = periodic.c prdic_math.c \
   elperiodic.h prdic_math.h prdic_timespecops.h
 libelperiodic_la_DEPENDENCIES = Symbol.map
