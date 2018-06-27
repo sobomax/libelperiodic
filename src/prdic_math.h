@@ -40,7 +40,7 @@
 #define MAX(x, y)       (((x) > (y)) ? (x) : (y))
 #define ABS(x)          ((x) > 0 ? (x) : (-x))
 
-struct recfilter {
+struct _prdic_recfilter {
     double a;
     double b;
     double lastval;
@@ -49,20 +49,20 @@ struct recfilter {
     int peak_detect;
 };
 
-struct PFD {
+struct _prdic_PFD {
     struct timespec last_tclk;
 };
 
 /* Function prototypes */
-double sigmoid(double);
+double _prdic_sigmoid(double);
 
-double recfilter_apply(struct recfilter *, double);
-void recfilter_init(struct recfilter *, double, double, int);
-void recfilter_adjust(struct recfilter *, double);
+double _prdic_recfilter_apply(struct _prdic_recfilter *, double);
+void _prdic_recfilter_init(struct _prdic_recfilter *, double, double, int);
+void _prdic_recfilter_adjust(struct _prdic_recfilter *, double);
 
-void PFD_init(struct PFD *);
-double PFD_get_error(struct PFD *, const struct timespec *);
+void _prdic_PFD_init(struct _prdic_PFD *);
+double _prdic_PFD_get_error(struct _prdic_PFD *, const struct timespec *);
 
-double freqoff_to_period(double freq_0, double foff_c, double foff_x);
+double _prdic_freqoff_to_period(double freq_0, double foff_c, double foff_x);
 
 #endif /* _PRDIC_MATH_H_ */
