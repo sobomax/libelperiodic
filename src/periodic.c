@@ -38,6 +38,7 @@
 #include "elperiodic.h"
 #include "prdic_math.h"
 #include "prdic_timespecops.h"
+#include "prdic_fd.h"
 
 struct prdic_band {
     int id;
