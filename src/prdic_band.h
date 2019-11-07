@@ -27,8 +27,6 @@
 #ifndef _PRDIC_BAND_H_
 #define _PRDIC_BAND_H_
 
-enum prdic_band_det_type {PRD_BDET_FREQ, PRD_BDET_PHASE};
-
 struct prdic_band {
     int id;
     double freq_hz;
@@ -45,7 +43,7 @@ struct prdic_band {
     } detector;
     struct timespec last_tclk;
     double add_delay;
-    enum prdic_band_det_type det_type;
+    enum prdic_det_type det_type;
     struct prdic_band *next;
 };
 

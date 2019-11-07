@@ -30,7 +30,7 @@
 struct prdic_band;
 
 struct prdic_inst {
-    struct prdic_band bands[1];
+    struct prdic_band root_band;
     struct prdic_band *ab;
 };
 

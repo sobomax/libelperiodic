@@ -27,6 +27,8 @@
 #ifndef _ELPERIODIC_H_
 #define _ELPERIODIC_H_
 
+enum prdic_det_type {PRDIC_DET_FREQ, PRDIC_DET_PHASE};
+
 void *prdic_init(double freq_hz, double off_from_now);
 int prdic_procrastinate(void *prdic_inst);
 time_t prdic_getncycles_ref(void *);
@@ -35,6 +37,8 @@ void prdic_set_epoch(void *, struct timespec *);
 void prdic_free(void *prdic_inst);
 int prdic_addband(void *prdic_inst, double freq_hz);
 void prdic_useband(void *prdic_inst, int bnum);
+enum prdic_det_type prdic_set_det_type(void *prdic_inst, int bnum,
+  enum prdic_det_type);
 double prdic_getload(void *);
 
 #endif

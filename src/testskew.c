@@ -1,4 +1,5 @@
 #include <sys/time.h>
+#include <assert.h>
 #include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -22,7 +23,7 @@ int
 main(int argc, char * const argv[])
 {
     void *prd;
-    int i, ch, vflag, qflag, mflag, Sflag;
+    int i, ch, vflag, qflag, mflag, Sflag, pflag;
     double freq, duration, skew, fval;
     time_t ncycles, mcycles;
 
@@ -30,8 +31,9 @@ main(int argc, char * const argv[])
     qflag = 0;
     mflag = 0;
     Sflag = 0;
+    pflag = 0;
     fval = 0.0;
-    while ((ch = getopt(argc, argv, "vqmSf:")) != -1) {
+    while ((ch = getopt(argc, argv, "vqmSf:p")) != -1) {
          switch (ch) {
          case 'v':
              vflag = 1;
@@ -47,6 +49,10 @@ main(int argc, char * const argv[])
 
          case 'S':
              Sflag = 1;
+             break;
+
+         case 'p':
+             pflag = 1;
              break;
 
          case 'f':
@@ -66,6 +72,8 @@ main(int argc, char * const argv[])
     freq = atof(argv[0]);
     duration = atof(argv[1]);
     prd = prdic_init(freq, 0.0);
+    if (pflag)
+        assert(prdic_set_det_type(prd, 0, PRDIC_DET_PHASE) == PRDIC_DET_FREQ);
     if (fval != 0.0) {
         prdic_set_fparams(prd, fval);
     }
