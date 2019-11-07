@@ -132,7 +132,9 @@ LTLIBRARIES = $(lib_LTLIBRARIES)
 libelperiodic_la_LIBADD =
 am_libelperiodic_la_OBJECTS = libelperiodic_la-periodic.lo \
 	libelperiodic_la-prdic_math.lo libelperiodic_la-prdic_fd.lo \
-	libelperiodic_la-prdic_pfd.lo libelperiodic_la-prdic_main.lo
+	libelperiodic_la-prdic_pfd.lo \
+	libelperiodic_la-prdic_main_fd.lo \
+	libelperiodic_la-prdic_main_pfd.lo
 libelperiodic_la_OBJECTS = $(am_libelperiodic_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -162,7 +164,8 @@ depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = ./$(DEPDIR)/libelperiodic_la-periodic.Plo \
 	./$(DEPDIR)/libelperiodic_la-prdic_fd.Plo \
-	./$(DEPDIR)/libelperiodic_la-prdic_main.Plo \
+	./$(DEPDIR)/libelperiodic_la-prdic_main_fd.Plo \
+	./$(DEPDIR)/libelperiodic_la-prdic_main_pfd.Plo \
 	./$(DEPDIR)/libelperiodic_la-prdic_math.Plo \
 	./$(DEPDIR)/libelperiodic_la-prdic_pfd.Plo \
 	./$(DEPDIR)/testskew.Po
@@ -333,7 +336,8 @@ top_srcdir = @top_srcdir@
 lib_LTLIBRARIES = libelperiodic.la
 libelperiodic_la_SOURCES = periodic.c prdic_math.c \
   elperiodic.h prdic_math.h prdic_timespecops.h prdic_fd.c prdic_fd.h \
-  prdic_pfd.c prdic_pfd.h prdic_main.c prdic_main.h
+  prdic_pfd.c prdic_pfd.h prdic_main_fd.c prdic_main_fd.h \
+  prdic_main_pfd.c prdic_main_pfd.h
 
 libelperiodic_la_DEPENDENCIES = Symbol.map
 libelperiodic_la_CFLAGS = -g3 -O0 -fPIC
@@ -435,7 +439,8 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libelperiodic_la-periodic.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libelperiodic_la-prdic_fd.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libelperiodic_la-prdic_main.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libelperiodic_la-prdic_main_fd.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libelperiodic_la-prdic_main_pfd.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libelperiodic_la-prdic_math.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libelperiodic_la-prdic_pfd.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/testskew.Po@am__quote@ # am--include-marker
@@ -495,12 +500,19 @@ libelperiodic_la-prdic_pfd.lo: prdic_pfd.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libelperiodic_la_CFLAGS) $(CFLAGS) -c -o libelperiodic_la-prdic_pfd.lo `test -f 'prdic_pfd.c' || echo '$(srcdir)/'`prdic_pfd.c
 
-libelperiodic_la-prdic_main.lo: prdic_main.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libelperiodic_la_CFLAGS) $(CFLAGS) -MT libelperiodic_la-prdic_main.lo -MD -MP -MF $(DEPDIR)/libelperiodic_la-prdic_main.Tpo -c -o libelperiodic_la-prdic_main.lo `test -f 'prdic_main.c' || echo '$(srcdir)/'`prdic_main.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libelperiodic_la-prdic_main.Tpo $(DEPDIR)/libelperiodic_la-prdic_main.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='prdic_main.c' object='libelperiodic_la-prdic_main.lo' libtool=yes @AMDEPBACKSLASH@
+libelperiodic_la-prdic_main_fd.lo: prdic_main_fd.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libelperiodic_la_CFLAGS) $(CFLAGS) -MT libelperiodic_la-prdic_main_fd.lo -MD -MP -MF $(DEPDIR)/libelperiodic_la-prdic_main_fd.Tpo -c -o libelperiodic_la-prdic_main_fd.lo `test -f 'prdic_main_fd.c' || echo '$(srcdir)/'`prdic_main_fd.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libelperiodic_la-prdic_main_fd.Tpo $(DEPDIR)/libelperiodic_la-prdic_main_fd.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='prdic_main_fd.c' object='libelperiodic_la-prdic_main_fd.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libelperiodic_la_CFLAGS) $(CFLAGS) -c -o libelperiodic_la-prdic_main.lo `test -f 'prdic_main.c' || echo '$(srcdir)/'`prdic_main.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libelperiodic_la_CFLAGS) $(CFLAGS) -c -o libelperiodic_la-prdic_main_fd.lo `test -f 'prdic_main_fd.c' || echo '$(srcdir)/'`prdic_main_fd.c
+
+libelperiodic_la-prdic_main_pfd.lo: prdic_main_pfd.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libelperiodic_la_CFLAGS) $(CFLAGS) -MT libelperiodic_la-prdic_main_pfd.lo -MD -MP -MF $(DEPDIR)/libelperiodic_la-prdic_main_pfd.Tpo -c -o libelperiodic_la-prdic_main_pfd.lo `test -f 'prdic_main_pfd.c' || echo '$(srcdir)/'`prdic_main_pfd.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libelperiodic_la-prdic_main_pfd.Tpo $(DEPDIR)/libelperiodic_la-prdic_main_pfd.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='prdic_main_pfd.c' object='libelperiodic_la-prdic_main_pfd.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libelperiodic_la_CFLAGS) $(CFLAGS) -c -o libelperiodic_la-prdic_main_pfd.lo `test -f 'prdic_main_pfd.c' || echo '$(srcdir)/'`prdic_main_pfd.c
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -638,7 +650,8 @@ clean-am: clean-generic clean-libLTLIBRARIES clean-libtool \
 distclean: distclean-am
 		-rm -f ./$(DEPDIR)/libelperiodic_la-periodic.Plo
 	-rm -f ./$(DEPDIR)/libelperiodic_la-prdic_fd.Plo
-	-rm -f ./$(DEPDIR)/libelperiodic_la-prdic_main.Plo
+	-rm -f ./$(DEPDIR)/libelperiodic_la-prdic_main_fd.Plo
+	-rm -f ./$(DEPDIR)/libelperiodic_la-prdic_main_pfd.Plo
 	-rm -f ./$(DEPDIR)/libelperiodic_la-prdic_math.Plo
 	-rm -f ./$(DEPDIR)/libelperiodic_la-prdic_pfd.Plo
 	-rm -f ./$(DEPDIR)/testskew.Po
@@ -689,7 +702,8 @@ installcheck-am:
 maintainer-clean: maintainer-clean-am
 		-rm -f ./$(DEPDIR)/libelperiodic_la-periodic.Plo
 	-rm -f ./$(DEPDIR)/libelperiodic_la-prdic_fd.Plo
-	-rm -f ./$(DEPDIR)/libelperiodic_la-prdic_main.Plo
+	-rm -f ./$(DEPDIR)/libelperiodic_la-prdic_main_fd.Plo
+	-rm -f ./$(DEPDIR)/libelperiodic_la-prdic_main_pfd.Plo
 	-rm -f ./$(DEPDIR)/libelperiodic_la-prdic_math.Plo
 	-rm -f ./$(DEPDIR)/libelperiodic_la-prdic_pfd.Plo
 	-rm -f ./$(DEPDIR)/testskew.Po
