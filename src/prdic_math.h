@@ -49,7 +49,7 @@ struct _prdic_recfilter {
     int peak_detect;
 };
 
-struct _prdic_PFD {
+struct _prdic_FD {
     struct timespec last_tclk;
 };
 
@@ -60,8 +60,8 @@ double _prdic_recfilter_apply(struct _prdic_recfilter *, double);
 void _prdic_recfilter_init(struct _prdic_recfilter *, double, double, int);
 void _prdic_recfilter_adjust(struct _prdic_recfilter *, double);
 
-void _prdic_PFD_init(struct _prdic_PFD *);
-double _prdic_PFD_get_error(struct _prdic_PFD *, const struct timespec *);
+void _prdic_FD_init(struct _prdic_FD *);
+double _prdic_FD_get_error(struct _prdic_FD *, const struct timespec *);
 
 double _prdic_freqoff_to_period(double freq_0, double foff_c, double foff_x);
 

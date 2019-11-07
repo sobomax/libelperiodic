@@ -49,7 +49,7 @@ struct prdic_band {
     struct _prdic_recfilter loop_error;
     struct _prdic_recfilter sysload_fltrd;
     struct _prdic_recfilter add_delay_fltrd;
-    struct _prdic_PFD phase_detector;
+    struct _prdic_FD freq_detector;
     struct timespec last_tclk;
     double add_delay;
     struct prdic_band *next;
@@ -103,7 +103,7 @@ band_init(struct prdic_band *bp, double freq_hz)
     _prdic_recfilter_init(&bp->loop_error, 0.96, 0.0, 0);
     _prdic_recfilter_init(&bp->add_delay_fltrd, 0.96, bp->period, 0);
     _prdic_recfilter_init(&bp->sysload_fltrd, 0.997, 0.0, 0);
-    _prdic_PFD_init(&bp->phase_detector);
+    _prdic_FD_init(&bp->freq_detector);
 }
 
 void *
@@ -157,8 +157,8 @@ band_set_epoch(struct prdic_band *bp, struct timespec *epoch)
 {
 
     bp->epoch = *epoch;
-    SEC(&bp->phase_detector.last_tclk) = 0;
-    NSEC(&bp->phase_detector.last_tclk) = 0;
+    SEC(&bp->freq_detector.last_tclk) = 0;
+    NSEC(&bp->freq_detector.last_tclk) = 0;
 }
 
 void
@@ -224,7 +224,7 @@ skipdelay:
     timespecsub(&eptime, &pip->ab->epoch);
     timespecmul(&pip->ab->last_tclk, &eptime, &pip->ab->tfreq_hz);
 
-    eval = _prdic_PFD_get_error(&pip->ab->phase_detector, &pip->ab->last_tclk);
+    eval = _prdic_FD_get_error(&pip->ab->freq_detector, &pip->ab->last_tclk);
     eval = pip->ab->loop_error.lastval + erf(eval - pip->ab->loop_error.lastval);
     _prdic_recfilter_apply(&pip->ab->loop_error, eval);
     pip->ab->add_delay = pip->ab->add_delay_fltrd.lastval + (eval * pip->ab->period);
@@ -250,7 +250,7 @@ skipdelay:
 #if defined(PRD_DEBUG)
     fprintf(stderr, "error=%f\n", eval);
     if (eval == 0.0 || 1) {
-        fprintf(stderr, "last=%lld target=%lld\n", SEC(&pip->ab->last_tclk), SEC(&pip->ab->phase_detector.last_tclk));
+        fprintf(stderr, "last=%lld target=%lld\n", SEC(&pip->ab->last_tclk), SEC(&pip->ab->freq_detector.last_tclk));
     }
     fflush(stderr);
 #endif

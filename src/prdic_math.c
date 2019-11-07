@@ -33,25 +33,25 @@
 #include "prdic_timespecops.h"
 
 void
-_prdic_PFD_init(struct _prdic_PFD *pfd_p)
+_prdic_FD_init(struct _prdic_FD *fd_p)
 {
 
-    memset(pfd_p, '\0', sizeof(struct _prdic_PFD));
+    memset(fd_p, '\0', sizeof(struct _prdic_FD));
 }
 
 double
-_prdic_PFD_get_error(struct _prdic_PFD *pfd_p, const struct timespec *tclk)
+_prdic_FD_get_error(struct _prdic_FD *fd_p, const struct timespec *tclk)
 {
     double err0r;
     struct timespec ttclk;
 
-    if (timespeciszero(&pfd_p->last_tclk)) {
-        pfd_p->last_tclk = *tclk;
+    if (timespeciszero(&fd_p->last_tclk)) {
+        fd_p->last_tclk = *tclk;
         return (0.0);
     }
-    timespecsub2(&ttclk, tclk, &pfd_p->last_tclk);
+    timespecsub2(&ttclk, tclk, &fd_p->last_tclk);
     err0r = timespec2dtime(&ttclk);
-    pfd_p->last_tclk = *tclk;
+    fd_p->last_tclk = *tclk;
     return (1.0 - err0r);
 }
 
