@@ -108,7 +108,7 @@ prdic_addband(void *prdic_inst, double freq_hz)
         return (-1);
     memset(bp, '\0', sizeof(struct prdic_band));
     bp->epoch = pip->bands[0].epoch;
-    band_init(bp, PRD_BDET_FREQ, freq_hz);
+    band_init(bp, pip->bands[0].det_type, freq_hz);
     for (tbp = &pip->bands[0]; tbp->next != NULL; tbp = tbp->next)
         continue;
     bp->id = tbp->id + 1;
