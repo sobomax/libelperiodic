@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Sippy Software, Inc., http://www.sippysoft.com
+ * Copyright (c) 2014-2019 Sippy Software, Inc., http://www.sippysoft.com
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,64 +24,27 @@
  * SUCH DAMAGE.
  */
 
-#include <sys/time.h>
-#include <assert.h>
-#include <math.h>
-#include <string.h>
+#ifndef _PRDIC_BAND_H_
+#define _PRDIC_BAND_H_
 
-#include "prdic_math.h"
+struct prdic_band {
+    int id;
+    double freq_hz;
+    double period;
+    struct timespec tperiod;
+    struct timespec tfreq_hz;
+    struct timespec epoch;
+    struct _prdic_recfilter loop_error;
+    struct _prdic_recfilter sysload_fltrd;
+    struct _prdic_recfilter add_delay_fltrd;
+    union {
+      struct _prdic_PFD phase;
+      struct _prdic_FD freq;
+    } detector;
+    struct timespec last_tclk;
+    double add_delay;
+    enum prdic_det_type det_type;
+    struct prdic_band *next;
+};
 
-double
-_prdic_sigmoid(double x)
-{
-
-    return (x / (1 + fabs(x)));
-}
-
-double
-_prdic_recfilter_apply(struct _prdic_recfilter *f, double x)
-{
-
-    f->lastval = f->a * x + f->b * f->lastval;
-    if (f->peak_detect != 0) {
-        if (f->lastval > f->maxval) {
-            f->maxval = f->lastval;
-        } if (f->lastval < f->minval) {
-            f->minval = f->maxval;
-        }
-    }
-    return f->lastval;
-}
-
-void
-_prdic_recfilter_init(struct _prdic_recfilter *f, double fcoef, double initval, int peak_detect)
-{
-
-    f->lastval = initval;
-    _prdic_recfilter_adjust(f, fcoef);
-    if (peak_detect != 0) {
-        f->peak_detect = 1;
-        f->maxval = initval;
-        f->minval = initval;
-    } else {
-        f->peak_detect = 0;
-        f->maxval = 0;
-        f->minval = 0;
-    }
-}
-
-void
-_prdic_recfilter_adjust(struct _prdic_recfilter *f, double fcoef)
-{
-
-    assert(fcoef < 1.0 && fcoef > 0.0);
-    f->a = 1.0 - fcoef;
-    f->b = fcoef;
-}
-
-double
-_prdic_freqoff_to_period(double freq_0, double foff_c, double foff_x)
-{
-
-    return (1.0 / freq_0 * (1 + foff_c * foff_x));
-}
+#endif /* _PRDIC_BAND_H_ */

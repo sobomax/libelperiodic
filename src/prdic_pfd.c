@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Sippy Software, Inc., http://www.sippysoft.com
+ * Copyright (c) 2014-2019 Sippy Software, Inc., http://www.sippysoft.com
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,58 +30,44 @@
 #include <string.h>
 
 #include "prdic_math.h"
+#include "prdic_timespecops.h"
+#include "prdic_pfd.h"
 
-double
-_prdic_sigmoid(double x)
+void
+_prdic_PFD_init(struct _prdic_PFD *pfd_p)
 {
 
-    return (x / (1 + fabs(x)));
+    memset(pfd_p, '\0', sizeof(struct _prdic_PFD));
 }
 
 double
-_prdic_recfilter_apply(struct _prdic_recfilter *f, double x)
+_prdic_PFD_get_error(struct _prdic_PFD *pfd_p, const struct timespec *tclk)
 {
+    double err0r;
+    struct timespec next_tclk, ttclk;
 
-    f->lastval = f->a * x + f->b * f->lastval;
-    if (f->peak_detect != 0) {
-        if (f->lastval > f->maxval) {
-            f->maxval = f->lastval;
-        } if (f->lastval < f->minval) {
-            f->minval = f->maxval;
-        }
+    SEC(&next_tclk) = SEC(tclk) + 1;
+    NSEC(&next_tclk) = 0;
+    if (timespeciszero(&pfd_p->target_tclk)) {
+        pfd_p->target_tclk = next_tclk;
+        return (0.0);
     }
-    return f->lastval;
+
+    timespecsub2(&ttclk, &pfd_p->target_tclk, tclk);
+    err0r = timespec2dtime(&ttclk);
+
+    pfd_p->target_tclk = next_tclk;
+    if (err0r > 0) {
+        SEC(&pfd_p->target_tclk) += 1;
+    }
+
+    return (err0r);
 }
 
 void
-_prdic_recfilter_init(struct _prdic_recfilter *f, double fcoef, double initval, int peak_detect)
+_prdic_PFD_reset(struct _prdic_PFD *pfd_p)
 {
 
-    f->lastval = initval;
-    _prdic_recfilter_adjust(f, fcoef);
-    if (peak_detect != 0) {
-        f->peak_detect = 1;
-        f->maxval = initval;
-        f->minval = initval;
-    } else {
-        f->peak_detect = 0;
-        f->maxval = 0;
-        f->minval = 0;
-    }
-}
-
-void
-_prdic_recfilter_adjust(struct _prdic_recfilter *f, double fcoef)
-{
-
-    assert(fcoef < 1.0 && fcoef > 0.0);
-    f->a = 1.0 - fcoef;
-    f->b = fcoef;
-}
-
-double
-_prdic_freqoff_to_period(double freq_0, double foff_c, double foff_x)
-{
-
-    return (1.0 / freq_0 * (1 + foff_c * foff_x));
+    SEC(&pfd_p->target_tclk) = 0;
+    NSEC(&pfd_p->target_tclk) = 0;
 }

@@ -1,6 +1,8 @@
 lib_LTLIBRARIES = libelperiodic.la
 libelperiodic_la_SOURCES = periodic.c prdic_math.c \
-  elperiodic.h prdic_math.h prdic_timespecops.h
+  elperiodic.h prdic_math.h prdic_timespecops.h prdic_fd.c prdic_fd.h \
+  prdic_pfd.c prdic_pfd.h prdic_main_fd.c prdic_main_fd.h \
+  prdic_main_pfd.c prdic_main_pfd.h
 libelperiodic_la_DEPENDENCIES = Symbol.map
 libelperiodic_la_CFLAGS = -g3 -O0 -fPIC
 libelperiodic_la_LDFLAGS = -version-info 1 -Wl,--version-script=$(srcdir)/Symbol.map -lm @RT_LIB@

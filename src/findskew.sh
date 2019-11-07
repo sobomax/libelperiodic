@@ -7,7 +7,7 @@ min_good=0
 max_bad=0
 direction=0
 missed=0
-TS_ARGS="-qS"
+TS_ARGS="-qS ${@}"
 while [ ${max_bad} -eq 0 -o ${missed} -eq 0 ]
 do
   missed=`./testskew ${TS_ARGS} ${freq} 1 | sed 's|^-||'`
