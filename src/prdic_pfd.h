@@ -27,12 +27,12 @@
 #ifndef _PRDIC_PFD_H_
 #define _PRDIC_PFD_H_
 
-struct PFD {
+struct _prdic_PFD {
     struct timespec target_tclk;
 };
 
-void PFD_init(struct PFD *);
-double PFD_get_error(struct PFD *, const struct timespec *);
-void PFD_reset(struct PFD *);
+void _prdic_PFD_init(struct _prdic_PFD *);
+double _prdic_PFD_get_error(struct _prdic_PFD *, const struct timespec *);
+void _prdic_PFD_reset(struct _prdic_PFD *);
 
 #endif /* _PRDIC_PFD_H_ */

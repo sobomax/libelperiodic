@@ -63,7 +63,7 @@ band_init(struct prdic_band *bp, enum prdic_band_det_type dt,
         _prdic_FD_init(&bp->detector.freq);
         break;
     case PRD_BDET_PHASE:
-        PFD_init(&bp->detector.phase);
+        _prdic_PFD_init(&bp->detector.phase);
         break;
     default:
         abort();
@@ -127,7 +127,7 @@ band_set_epoch(struct prdic_band *bp, struct timespec *epoch)
         _prdic_FD_reset(&bp->detector.freq);
         break;
     case PRD_BDET_PHASE:
-        PFD_reset(&bp->detector.phase);
+        _prdic_PFD_reset(&bp->detector.phase);
         break;
     default:
         abort();

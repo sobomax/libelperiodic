@@ -77,7 +77,7 @@ skipdelay:
     timespecsub(&eptime, &pip->ab->epoch);
     timespecmul(&pip->ab->last_tclk, &eptime, &pip->ab->tfreq_hz);
 
-    eval = PFD_get_error(&pip->ab->detector.phase, &pip->ab->last_tclk);
+    eval = _prdic_PFD_get_error(&pip->ab->detector.phase, &pip->ab->last_tclk);
     if (eval != 0.0) {
         eval = pip->ab->loop_error.lastval + erf(eval - pip->ab->loop_error.lastval);
         _prdic_recfilter_apply(&pip->ab->loop_error, eval);

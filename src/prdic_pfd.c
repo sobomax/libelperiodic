@@ -34,14 +34,14 @@
 #include "prdic_pfd.h"
 
 void
-PFD_init(struct PFD *pfd_p)
+_prdic_PFD_init(struct _prdic_PFD *pfd_p)
 {
 
-    memset(pfd_p, '\0', sizeof(struct PFD));
+    memset(pfd_p, '\0', sizeof(struct _prdic_PFD));
 }
 
 double
-PFD_get_error(struct PFD *pfd_p, const struct timespec *tclk)
+_prdic_PFD_get_error(struct _prdic_PFD *pfd_p, const struct timespec *tclk)
 {
     double err0r;
     struct timespec next_tclk, ttclk;
@@ -65,7 +65,7 @@ PFD_get_error(struct PFD *pfd_p, const struct timespec *tclk)
 }
 
 void
-PFD_reset(struct PFD *pfd_p)
+_prdic_PFD_reset(struct _prdic_PFD *pfd_p)
 {
 
     SEC(&pfd_p->target_tclk) = 0;

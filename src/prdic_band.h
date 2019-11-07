@@ -40,7 +40,7 @@ struct prdic_band {
     struct _prdic_recfilter sysload_fltrd;
     struct _prdic_recfilter add_delay_fltrd;
     union {
-      struct PFD phase;
+      struct _prdic_PFD phase;
       struct _prdic_FD freq;
     } detector;
     struct timespec last_tclk;
