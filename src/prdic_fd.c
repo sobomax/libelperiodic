@@ -55,3 +55,11 @@ _prdic_FD_get_error(struct _prdic_FD *fd_p, const struct timespec *tclk)
     fd_p->last_tclk = *tclk;
     return (1.0 - err0r);
 }
+
+void
+_prdic_FD_reset(struct _prdic_FD *fd_p)
+{
+
+    SEC(&fd_p->last_tclk) = 0;
+    NSEC(&fd_p->last_tclk) = 0;
+}

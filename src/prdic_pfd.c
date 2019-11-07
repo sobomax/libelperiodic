@@ -63,3 +63,11 @@ PFD_get_error(struct PFD *pfd_p, const struct timespec *tclk)
 
     return (err0r);
 }
+
+void
+PFD_reset(struct PFD *pfd_p)
+{
+
+    SEC(&pfd_p->target_tclk) = 0;
+    NSEC(&pfd_p->target_tclk) = 0;
+}

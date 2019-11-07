@@ -34,5 +34,6 @@ struct _prdic_FD {
 /* Function prototypes */
 void _prdic_FD_init(struct _prdic_FD *);
 double _prdic_FD_get_error(struct _prdic_FD *, const struct timespec *);
+void _prdic_FD_reset(struct _prdic_FD *);
 
 #endif /* _PRDIC_FD_H_ */

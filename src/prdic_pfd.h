@@ -33,5 +33,6 @@ struct PFD {
 
 void PFD_init(struct PFD *);
 double PFD_get_error(struct PFD *, const struct timespec *);
+void PFD_reset(struct PFD *);
 
 #endif /* _PRDIC_PFD_H_ */

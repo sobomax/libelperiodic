@@ -158,8 +158,7 @@ band_set_epoch(struct prdic_band *bp, struct timespec *epoch)
 {
 
     bp->epoch = *epoch;
-    SEC(&bp->freq_detector.last_tclk) = 0;
-    NSEC(&bp->freq_detector.last_tclk) = 0;
+    _prdic_FD_reset(&bp->freq_detector);
 }
 
 void
