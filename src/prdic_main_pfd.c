@@ -43,11 +43,10 @@
 #include "prdic_pfd.h"
 #include "prdic_main_pfd.h"
 #include "prdic_band.h"
-#include "prdic_inst.h"
 #include "prdic_time.h"
 
 int
-_prdic_procrastinate_PFD(struct prdic_inst *pip)
+_prdic_procrastinate_PFD(struct prdic_band *pip_ab)
 {
     struct timespec tsleep, tremain;
     int rval;
@@ -59,11 +58,11 @@ _prdic_procrastinate_PFD(struct prdic_inst *pip)
     nrun += 1;
 #endif
 
-    eval = pip->ab->loop_error.lastval - 0.5;
+    eval = pip_ab->loop_error.lastval - 0.5;
     if (eval <= 0.0)
         goto skipdelay;
 
-    dtime2timespec(15.0 * eval / pip->ab->freq_hz, &tremain);
+    dtime2timespec(15.0 * eval / pip_ab->freq_hz, &tremain);
 
     do {
         tsleep = tremain;
@@ -74,25 +73,26 @@ _prdic_procrastinate_PFD(struct prdic_inst *pip)
 skipdelay:
     getttime(&eptime, 1);
 
-    timespecsub(&eptime, &pip->ab->epoch);
-    timespecmul(&pip->ab->last_tclk, &eptime, &pip->ab->tfreq_hz);
+    timespecsub(&eptime, &pip_ab->epoch);
+    timespecmul(&pip_ab->last_tclk, &eptime, &pip_ab->tfreq_hz);
 
-    eval = _prdic_PFD_get_error(&pip->ab->detector.phase, &pip->ab->last_tclk);
+    eval = _prdic_PFD_get_error(&pip_ab->detector.phase, &pip_ab->last_tclk);
     if (eval != 0.0) {
-        eval = pip->ab->loop_error.lastval + erf(eval - pip->ab->loop_error.lastval);
-        _prdic_recfilter_apply(&pip->ab->loop_error, eval);
+        eval = pip_ab->loop_error.lastval + erf(eval - pip_ab->loop_error.lastval);
+        _prdic_recfilter_apply(&pip_ab->loop_error, eval);
     }
 
 #if defined(PRD_DEBUG)
-    fprintf(stderr, "run=%lld raw_error=%f filtered_error=%f\n", nrun, eval, pip->ab->loop_error.lastval);
+    fprintf(stderr, "run=%lld raw_error=%f filtered_error=%f\n", nrun, eval,
+      pip_ab->loop_error.lastval);
     fflush(stderr);
 #endif
 
 #if defined(PRD_DEBUG)
     fprintf(stderr, "error=%f\n", eval);
     if (eval == 0.0 || 1) {
-        fprintf(stderr, "last=%lld target=%lld\n", SEC(&pip->ab->last_tclk),
-          SEC(&pip->ab->detector.phase.target_tclk));
+        fprintf(stderr, "last=%lld target=%lld\n", SEC(&pip_ab->last_tclk),
+          SEC(&pip_ab->detector.phase.target_tclk));
     }
     fflush(stderr);
 #endif

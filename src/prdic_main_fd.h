@@ -27,9 +27,9 @@
 #ifndef _PRDIC_MAIN_FD_H_
 #define _PRDIC_MAIN_FD_H_
 
-struct prdic_inst;
+struct prdic_band;
 
 /* Function prototypes */
-int _prdic_procrastinate_FD(struct prdic_inst *);
+int _prdic_procrastinate_FD(struct prdic_band *);
 
 #endif /* _PRDIC_MAIN_FD_H_ */

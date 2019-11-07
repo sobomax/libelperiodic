@@ -37,6 +37,7 @@
 #include "prdic_fd.h"
 #include "prdic_pfd.h"
 #include "prdic_main_fd.h"
+#include "prdic_main_pfd.h"
 #include "prdic_band.h"
 #include "prdic_inst.h"
 #include "prdic_time.h"
@@ -200,9 +201,14 @@ prdic_procrastinate(void *prdic_inst)
     struct prdic_inst *pip;
 
     pip = (struct prdic_inst *)prdic_inst;
-
-    return (_prdic_procrastinate_FD(pip));
-    return (0);
+    switch (pip->ab->det_type) {
+    case PRDIC_DET_FREQ:
+        return (_prdic_procrastinate_FD(pip->ab));
+    case PRDIC_DET_PHASE:
+        return (_prdic_procrastinate_PFD(pip->ab));
+    default:
+        abort();
+    }
 }
 
 void
