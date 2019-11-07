@@ -39,59 +39,10 @@
 #include "prdic_math.h"
 #include "prdic_timespecops.h"
 #include "prdic_fd.h"
-
-struct prdic_band {
-    int id;
-    double freq_hz;
-    double period;
-    struct timespec tperiod;
-    struct timespec tfreq_hz;
-    struct timespec epoch;
-    struct _prdic_recfilter loop_error;
-    struct _prdic_recfilter sysload_fltrd;
-    struct _prdic_recfilter add_delay_fltrd;
-    struct _prdic_FD freq_detector;
-    struct timespec last_tclk;
-    double add_delay;
-    struct prdic_band *next;
-};
-
-struct prdic_inst {
-    struct prdic_band bands[1];
-    struct prdic_band *ab;
-};
-
-static inline int
-getttime(struct timespec *ttp, int abort_on_fail)
-{
-
-    if (clock_gettime(CLOCK_MONOTONIC, ttp) == -1) {
-        if (abort_on_fail)
-            abort();
-        return (-1);
-    }
-    return (0);
-}
-
-#if 0
-static void
-dtime2timespec(double dtime, struct timespec *ttp)
-{
-
-    SEC(ttp) = trunc(dtime);
-    dtime -= (double)SEC(ttp);
-    NSEC(ttp) = round((double)NSEC_IN_SEC * dtime);
-}
-#endif
-
-static void
-tplusdtime(struct timespec *ttp, double offset)
-{
-    struct timespec tp;
-
-    dtime2timespec(offset, &tp);
-    timespecadd(ttp, &tp);
-}
+#include "prdic_main.h"
+#include "prdic_band.h"
+#include "prdic_inst.h"
+#include "prdic_time.h"
 
 static void
 band_init(struct prdic_band *bp, double freq_hz)
@@ -191,70 +142,10 @@ int
 prdic_procrastinate(void *prdic_inst)
 {
     struct prdic_inst *pip;
-    struct timespec tsleep, tremain;
-    int rval;
-    double eval, teval;
-    struct timespec eptime;
-#if defined(PRD_DEBUG)
-    static long long nrun = -1;
-
-    nrun += 1;
-#endif
 
     pip = (struct prdic_inst *)prdic_inst;
 
-    if (pip->ab->add_delay_fltrd.lastval <= 0) {
-         goto skipdelay;
-    }
-    dtime2timespec(pip->ab->add_delay_fltrd.lastval, &tremain);
-
-#if defined(PRD_DEBUG)
-    fprintf(stderr, "nrun=%lld add_delay=%f add_delay_fltrd=%f lastval=%f\n", nrun, pip->ab->add_delay, pip->ab->add_delay_fltrd.lastval, pip->ab->loop_error.lastval);
-    fflush(stderr);
-#endif
-    do {
-        tsleep = tremain;
-        memset(&tremain, '\0', sizeof(tremain));
-        rval = nanosleep(&tsleep, &tremain);
-    } while (rval < 0 && !timespeciszero(&tremain));
-
-skipdelay:
-    getttime(&eptime, 1);
-
-    timespecsub(&eptime, &pip->ab->epoch);
-    timespecmul(&pip->ab->last_tclk, &eptime, &pip->ab->tfreq_hz);
-
-    eval = _prdic_FD_get_error(&pip->ab->freq_detector, &pip->ab->last_tclk);
-    eval = pip->ab->loop_error.lastval + erf(eval - pip->ab->loop_error.lastval);
-    _prdic_recfilter_apply(&pip->ab->loop_error, eval);
-    pip->ab->add_delay = pip->ab->add_delay_fltrd.lastval + (eval * pip->ab->period);
-    _prdic_recfilter_apply(&pip->ab->add_delay_fltrd, pip->ab->add_delay);
-    if (pip->ab->add_delay_fltrd.lastval < 0.0) {
-        pip->ab->add_delay_fltrd.lastval = 0;
-    } else if (pip->ab->add_delay_fltrd.lastval > pip->ab->period) {
-        pip->ab->add_delay_fltrd.lastval = pip->ab->period;
-    }
-    if (pip->ab->add_delay_fltrd.lastval > 0) {
-        teval = 1.0 - (pip->ab->add_delay_fltrd.lastval / pip->ab->period);
-    } else {
-        teval = 1.0 - pip->ab->loop_error.lastval;
-    }
-    _prdic_recfilter_apply(&pip->ab->sysload_fltrd, teval);
-
-#if defined(PRD_DEBUG)
-    fprintf(stderr, "run=%lld raw_error=%f filtered_error=%f teval=%f filtered_teval=%f\n", nrun,
-      eval, pip->ab->loop_error.lastval, teval, pip->ab->sysload_fltrd.lastval);
-    fflush(stderr);
-#endif
-
-#if defined(PRD_DEBUG)
-    fprintf(stderr, "error=%f\n", eval);
-    if (eval == 0.0 || 1) {
-        fprintf(stderr, "last=%lld target=%lld\n", SEC(&pip->ab->last_tclk), SEC(&pip->ab->freq_detector.last_tclk));
-    }
-    fflush(stderr);
-#endif
-
+    return (_prdic_procrastinate_FD(pip));
     return (0);
 }
 
