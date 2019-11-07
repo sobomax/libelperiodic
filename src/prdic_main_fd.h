@@ -24,13 +24,12 @@
  * SUCH DAMAGE.
  */
 
-#ifndef _PRDIC_MAIN_H_
-#define _PRDIC_MAIN_H_
+#ifndef _PRDIC_MAIN_FD_H_
+#define _PRDIC_MAIN_FD_H_
 
 struct prdic_inst;
 
 /* Function prototypes */
 int _prdic_procrastinate_FD(struct prdic_inst *);
-int _prdic_procrastinate_PFD(struct prdic_inst *);
 
-#endif /* _PRDIC_FD_H_ */
+#endif /* _PRDIC_MAIN_FD_H_ */

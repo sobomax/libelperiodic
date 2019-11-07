@@ -39,7 +39,8 @@
 #include "prdic_math.h"
 #include "prdic_timespecops.h"
 #include "prdic_fd.h"
-#include "prdic_main.h"
+#include "prdic_pfd.h"
+#include "prdic_main_fd.h"
 #include "prdic_band.h"
 #include "prdic_inst.h"
 #include "prdic_time.h"
@@ -55,7 +56,7 @@ band_init(struct prdic_band *bp, double freq_hz)
     _prdic_recfilter_init(&bp->loop_error, 0.96, 0.0, 0);
     _prdic_recfilter_init(&bp->add_delay_fltrd, 0.96, bp->period, 0);
     _prdic_recfilter_init(&bp->sysload_fltrd, 0.997, 0.0, 0);
-    _prdic_FD_init(&bp->freq_detector);
+    _prdic_FD_init(&bp->detector.freq);
 }
 
 void *
@@ -109,7 +110,7 @@ band_set_epoch(struct prdic_band *bp, struct timespec *epoch)
 {
 
     bp->epoch = *epoch;
-    _prdic_FD_reset(&bp->freq_detector);
+    _prdic_FD_reset(&bp->detector.freq);
 }
 
 void

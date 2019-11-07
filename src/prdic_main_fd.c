@@ -40,7 +40,8 @@
 #include "prdic_math.h"
 #include "prdic_timespecops.h"
 #include "prdic_fd.h"
-#include "prdic_main.h"
+#include "prdic_pfd.h"
+#include "prdic_main_fd.h"
 #include "prdic_band.h"
 #include "prdic_inst.h"
 #include "prdic_time.h"
@@ -79,7 +80,7 @@ skipdelay:
     timespecsub(&eptime, &pip->ab->epoch);
     timespecmul(&pip->ab->last_tclk, &eptime, &pip->ab->tfreq_hz);
 
-    eval = _prdic_FD_get_error(&pip->ab->freq_detector, &pip->ab->last_tclk);
+    eval = _prdic_FD_get_error(&pip->ab->detector.freq, &pip->ab->last_tclk);
     eval = pip->ab->loop_error.lastval + erf(eval - pip->ab->loop_error.lastval);
     _prdic_recfilter_apply(&pip->ab->loop_error, eval);
     pip->ab->add_delay = pip->ab->add_delay_fltrd.lastval + (eval * pip->ab->period);
@@ -105,7 +106,8 @@ skipdelay:
 #if defined(PRD_DEBUG)
     fprintf(stderr, "error=%f\n", eval);
     if (eval == 0.0 || 1) {
-        fprintf(stderr, "last=%lld target=%lld\n", SEC(&pip->ab->last_tclk), SEC(&pip->ab->freq_detector.last_tclk));
+        fprintf(stderr, "last=%lld target=%lld\n", SEC(&pip->ab->last_tclk),
+          SEC(&pip->ab->detector.freq.last_tclk));
     }
     fflush(stderr);
 #endif

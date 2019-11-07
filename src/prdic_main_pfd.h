@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2019 Sippy Software, Inc., http://www.sippysoft.com
+ * Copyright (c) 2019 Sippy Software, Inc., http://www.sippysoft.com
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,26 +24,12 @@
  * SUCH DAMAGE.
  */
 
-#ifndef _PRDIC_BAND_H_
-#define _PRDIC_BAND_H_
+#ifndef _PRDIC_MAIN_PFD_H_
+#define _PRDIC_MAIN_PFD_H_
 
-struct prdic_band {
-    int id;
-    double freq_hz;
-    double period;
-    struct timespec tperiod;
-    struct timespec tfreq_hz;
-    struct timespec epoch;
-    struct _prdic_recfilter loop_error;
-    struct _prdic_recfilter sysload_fltrd;
-    struct _prdic_recfilter add_delay_fltrd;
-    union {
-      struct PFD phase;
-      struct _prdic_FD freq;
-    } detector;
-    struct timespec last_tclk;
-    double add_delay;
-    struct prdic_band *next;
-};
+struct prdic_inst;
 
-#endif /* _PRDIC_BAND_H_ */
+/* Function prototypes */
+int _prdic_procrastinate_PFD(struct prdic_inst *);
+
+#endif /* _PRDIC_MAIN_PFD_H_ */
