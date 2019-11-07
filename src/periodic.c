@@ -46,9 +46,11 @@
 #include "prdic_time.h"
 
 static void
-band_init(struct prdic_band *bp, double freq_hz)
+band_init(struct prdic_band *bp, enum prdic_band_det_type dt,
+  double freq_hz)
 {
 
+    bp->det_type = dt;
     bp->freq_hz = freq_hz;
     bp->period = 1.0 / freq_hz;
     dtime2timespec(bp->period, &bp->tperiod);
@@ -56,7 +58,17 @@ band_init(struct prdic_band *bp, double freq_hz)
     _prdic_recfilter_init(&bp->loop_error, 0.96, 0.0, 0);
     _prdic_recfilter_init(&bp->add_delay_fltrd, 0.96, bp->period, 0);
     _prdic_recfilter_init(&bp->sysload_fltrd, 0.997, 0.0, 0);
-    _prdic_FD_init(&bp->detector.freq);
+    switch (dt) {
+    case PRD_BDET_FREQ:
+        _prdic_FD_init(&bp->detector.freq);
+        break;
+    case PRD_BDET_PHASE:
+        PFD_init(&bp->detector.phase);
+        break;
+    default:
+        abort();
+    }
+
 }
 
 void *
@@ -74,7 +86,7 @@ prdic_init(double freq_hz, double off_from_now)
         goto e1;
     }
     tplusdtime(&pip->ab->epoch, off_from_now);
-    band_init(pip->ab, freq_hz);
+    band_init(pip->ab, PRD_BDET_FREQ, freq_hz);
     return ((void *)pip);
 e1:
     free(pip);
@@ -96,7 +108,7 @@ prdic_addband(void *prdic_inst, double freq_hz)
         return (-1);
     memset(bp, '\0', sizeof(struct prdic_band));
     bp->epoch = pip->bands[0].epoch;
-    band_init(bp, freq_hz);
+    band_init(bp, PRD_BDET_FREQ, freq_hz);
     for (tbp = &pip->bands[0]; tbp->next != NULL; tbp = tbp->next)
         continue;
     bp->id = tbp->id + 1;
@@ -110,7 +122,16 @@ band_set_epoch(struct prdic_band *bp, struct timespec *epoch)
 {
 
     bp->epoch = *epoch;
-    _prdic_FD_reset(&bp->detector.freq);
+    switch (bp->det_type) {
+    case PRD_BDET_FREQ:
+        _prdic_FD_reset(&bp->detector.freq);
+        break;
+    case PRD_BDET_PHASE:
+        PFD_reset(&bp->detector.phase);
+        break;
+    default:
+        abort();
+    }
 }
 
 void
