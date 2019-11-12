@@ -12,7 +12,7 @@ make all
 ./configure --enable-coverage
 make clean all
 cd src
-for arg in '' '-p'
+for arg in '' # '-p'
 do
   sh -x ./findskew.sh ${arg}
 done
