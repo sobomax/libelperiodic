@@ -61,7 +61,7 @@ _prdic_procrastinate_FD(struct prdic_band *pip_ab)
     if (pip_ab->add_delay_fltrd.lastval <= 0) {
          goto skipdelay;
     }
-    dtime2timespec(pip_ab->add_delay_fltrd.lastval, &tremain);
+    dtime2timespec(pip_ab->add_delay_fltrd.lastval * pip_ab->period, &tremain);
 
 #if defined(PRD_DEBUG)
     fprintf(stderr, "nrun=%lld add_delay=%f add_delay_fltrd=%f lastval=%f\n",
@@ -84,15 +84,15 @@ skipdelay:
     eval = _prdic_FD_get_error(&pip_ab->detector.freq, &pip_ab->last_tclk);
     eval = pip_ab->loop_error.lastval + erf(eval - pip_ab->loop_error.lastval);
     _prdic_recfilter_apply(&pip_ab->loop_error, eval);
-    pip_ab->add_delay = pip_ab->add_delay_fltrd.lastval + (eval * pip_ab->period);
+    pip_ab->add_delay = pip_ab->add_delay_fltrd.lastval + eval;
     _prdic_recfilter_apply(&pip_ab->add_delay_fltrd, pip_ab->add_delay);
     if (pip_ab->add_delay_fltrd.lastval < 0.0) {
         pip_ab->add_delay_fltrd.lastval = 0;
-    } else if (pip_ab->add_delay_fltrd.lastval > pip_ab->period) {
-        pip_ab->add_delay_fltrd.lastval = pip_ab->period;
+    } else if (pip_ab->add_delay_fltrd.lastval > 1.0) {
+        pip_ab->add_delay_fltrd.lastval = 1.0;
     }
     if (pip_ab->add_delay_fltrd.lastval > 0) {
-        teval = 1.0 - (pip_ab->add_delay_fltrd.lastval / pip_ab->period);
+        teval = 1.0 - pip_ab->add_delay_fltrd.lastval;
     } else {
         teval = 1.0 - pip_ab->loop_error.lastval;
     }
