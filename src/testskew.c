@@ -1,6 +1,7 @@
 #include <sys/time.h>
 #include <assert.h>
 #include <inttypes.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -8,6 +9,7 @@
 //extern int optind;
 
 #include "elperiodic.h"
+#include "prdic_timespecops.h"
 
 static void
 usage(void)
@@ -24,7 +26,7 @@ main(int argc, char * const argv[])
 {
     void *prd;
     int i, ch, vflag, qflag, mflag, Sflag, pflag;
-    double freq, duration, skew, fval;
+    double freq, duration, skew, fval, Lmin, Lmax, Lcur;
     time_t ncycles, mcycles;
 
     vflag = 0;
@@ -33,7 +35,9 @@ main(int argc, char * const argv[])
     Sflag = 0;
     pflag = 0;
     fval = 0.0;
-    while ((ch = getopt(argc, argv, "vqmSf:p")) != -1) {
+    Lmin = 0.0;
+    Lmax = 0.0;
+    while ((ch = getopt(argc, argv, "vqmSf:pL")) != -1) {
          switch (ch) {
          case 'v':
              vflag = 1;
@@ -59,6 +63,11 @@ main(int argc, char * const argv[])
              fval = atof(optarg);
              break;
 
+         case 'L':
+             Lmin = 0.00;
+             Lmax = 1.03;
+             break;
+
          case '?':
          default:
              usage();
@@ -71,33 +80,46 @@ main(int argc, char * const argv[])
     }
     freq = atof(argv[0]);
     duration = atof(argv[1]);
-    prd = prdic_init(freq, 0.0);
-    if (pflag)
-        assert(prdic_set_det_type(prd, 0, PRDIC_DET_PHASE) == PRDIC_DET_FREQ);
-    if (fval != 0.0) {
-        prdic_set_fparams(prd, fval);
-    }
-    for (i = 0; i < (freq * duration); i++) {
-        prdic_procrastinate(prd);
-        ncycles = prdic_getncycles_ref(prd);
+    for (Lcur = Lmin; Lcur <= Lmax; Lcur += 0.01) {
+        double dperiod = Lcur / freq;
+        prd = prdic_init(freq, 0.0);
+        if (pflag)
+            assert(prdic_set_det_type(prd, 0, PRDIC_DET_PHASE) == PRDIC_DET_FREQ);
+        if (fval != 0.0) {
+            prdic_set_fparams(prd, fval);
+        }
+        for (i = 0; i < (freq * duration); i++) {
+            if (dperiod > 0) {
+                struct timespec tsleep;
+
+                dtime2timespec(dperiod, &tsleep);
+                nanosleep(&tsleep, NULL);
+            }
+            prdic_procrastinate(prd);
+            ncycles = prdic_getncycles_ref(prd);
+            if (vflag != 0) {
+                printf("%lld\r", (long long)ncycles);
+                fflush(stdout);
+            }
+        }
         if (vflag != 0) {
-            printf("%lld\r", (long long)ncycles);
-            fflush(stdout);
+            printf("\n");
         }
-    }
-    if (vflag != 0) {
-         printf("\n");
-    }
-    if (mflag == 0) {
-        skew = 1.0 - ((double)ncycles / (freq * duration));
-        if (Sflag == 0) {
-            printf("%s%f%s\n", silence("skew: "), skew * 100.0, silence("%"));
+        prdic_free(prd);
+        if (mflag == 0) {
+            skew = 1.0 - ((double)ncycles / (freq * duration));
+            if (Lmax > 0 && !qflag) {
+                printf("load: %f, ", Lcur * 100.0);
+            }
+            if (Sflag == 0) {
+                printf("%s%f%s\n", silence("skew: "), skew * 100.0, silence("%"));
+            } else {
+                printf("%s%d\n", silence("skew: "), (int)(skew * 100000.0));
+            }
         } else {
-            printf("%s%d\n", silence("skew: "), (int)(skew * 100000.0));
+            mcycles = ncycles - (freq * duration);
+            printf("%s%jd\n", silence("missed cycles: "), (intmax_t)mcycles);
         }
-    } else {
-        mcycles = ncycles - (freq * duration);
-        printf("%s%jd\n", silence("missed cycles: "), (intmax_t)mcycles);
     }
 
     return (0);
