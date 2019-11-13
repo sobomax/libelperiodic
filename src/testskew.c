@@ -121,6 +121,7 @@ main(int argc, char * const argv[])
             mcycles = ncycles - (freq * duration);
             printf("%s%jd\n", silence("missed cycles: "), (intmax_t)mcycles);
         }
+        fflush(stdout);
     }
 
     return (0);
