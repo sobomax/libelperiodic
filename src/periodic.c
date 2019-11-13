@@ -52,7 +52,7 @@ band_init(struct prdic_band *bp, enum prdic_det_type dt,
     bp->period = 1.0 / freq_hz;
     dtime2timespec(bp->period, &bp->tperiod);
     dtime2timespec(freq_hz, &bp->tfreq_hz);
-    _prdic_recfilter_init(&bp->loop_error, 0.96, 0.0, 0);
+    _prdic_recfilter_init(&bp->loop_error, 0.96, 1.0, 0);
     _prdic_recfilter_init(&bp->add_delay_fltrd, 0.96, 1.0, 0);
     _prdic_recfilter_init(&bp->sysload_fltrd, 0.997, 0.0, 0);
     switch (dt) {
