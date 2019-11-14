@@ -10,7 +10,8 @@ before_install:
   - sudo -H DEBIAN_FRONTEND=noninteractive apt-get -y update
   - sudo -H DEBIAN_FRONTEND=noninteractive apt-get -y install python3-pip
   - sudo pip3 install --upgrade pip
-  - pip3 install --user setuptools cpp-coveralls
+  - pip3 install --user setuptools
+  - pip3 install --user cpp-coveralls
 script:
     sh -x ./scripts/do-test.sh
 env:
