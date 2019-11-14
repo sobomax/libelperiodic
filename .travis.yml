@@ -3,6 +3,9 @@ language: c
 compiler:
   - clang
   - gcc
+arch:
+  - amd64
+  - arm64
 before_install:
   - pip install --user cpp-coveralls
 script:
