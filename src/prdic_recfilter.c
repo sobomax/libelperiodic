@@ -40,13 +40,6 @@ _prdic_recfilter_apply(struct _prdic_recfilter *f, double x)
     double chainval;
 
     f->lastval = f->a * x + f->b * f->lastval;
-    if (f->peak_detect != 0) {
-        if (f->lastval > f->maxval) {
-            f->maxval = f->lastval;
-        } if (f->lastval < f->minval) {
-            f->minval = f->maxval;
-        }
-    }
     for (int i = 0; f->procchain[i] != NULL; i++) {
         struct _prdic_procchain *clnk;
 
@@ -59,20 +52,11 @@ _prdic_recfilter_apply(struct _prdic_recfilter *f, double x)
 }
 
 void
-_prdic_recfilter_init(struct _prdic_recfilter *f, double fcoef, double initval, int peak_detect)
+_prdic_recfilter_init(struct _prdic_recfilter *f, double fcoef, double initval)
 {
 
     f->lastval = initval;
     _prdic_recfilter_adjust(f, fcoef);
-    if (peak_detect != 0) {
-        f->peak_detect = 1;
-        f->maxval = initval;
-        f->minval = initval;
-    } else {
-        f->peak_detect = 0;
-        f->maxval = 0;
-        f->minval = 0;
-    }
 }
 
 void

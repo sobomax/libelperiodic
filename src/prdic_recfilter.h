@@ -33,15 +33,12 @@ struct _prdic_recfilter {
     double a;
     double b;
     double lastval;
-    double minval;
-    double maxval;
-    int peak_detect;
     struct _prdic_procchain *procchain[2];
 };
 
 /* Function prototypes */
 double _prdic_recfilter_apply(struct _prdic_recfilter *, double);
-void _prdic_recfilter_init(struct _prdic_recfilter *, double, double, int);
+void _prdic_recfilter_init(struct _prdic_recfilter *, double, double);
 void _prdic_recfilter_adjust(struct _prdic_recfilter *, double);
 
 #endif /* _PRDIC_RECFILTER_H_ */
