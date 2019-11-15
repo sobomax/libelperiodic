@@ -81,77 +81,94 @@ main(int argc, char * const argv[])
     }
     argc -= optind;
     argv += optind;
-    if (argc != 2) {
+    if (argc == 0 && (argc % 2) != 0) {
         usage();
     }
-    freq = atof(argv[0]);
-    duration = atof(argv[1]);
-    for (Lcur = Lmin; Lcur <= Lmax; Lcur += 0.05) {
-        int wcycles = 0;
-        time_t startncycles = 0;
+    prd = NULL;
+    do {
+        freq = atof(argv[0]);
+        duration = atof(argv[1]);
+        for (Lcur = Lmin; Lcur <= Lmax; Lcur += 0.05) {
+            int wcycles = 0;
+            int bnum;
+            time_t startncycles = 0;
 
-        double dperiod = Lcur / freq;
-        prd = prdic_init(freq, 0.0);
-        assert(prdic_islocked(prd) == 0);
-        if (pflag)
-            assert(prdic_set_det_type(prd, 0, PRDIC_DET_PHASE) == PRDIC_DET_FREQ);
-        if (fval != 0.0) {
-            prdic_set_fparams(prd, fval);
-        }
-        ncycles = 0;
-        for (i = 0; i - wcycles < (freq * duration); i++) {
-            if (dperiod > 0) {
-                struct timespec tsleep;
-
-                dtime2timespec(dperiod, &tsleep);
-                nanosleep(&tsleep, NULL);
+            double dperiod = Lcur / freq;
+            if (prd == NULL) {
+                prd = prdic_init(freq, 0.0);
+                assert(prd != NULL);
+                if (pflag)
+                    assert(prdic_set_det_type(prd, 0, PRDIC_DET_PHASE) == PRDIC_DET_FREQ);
+                bnum = 0;
+            } else {
+                bnum = prdic_addband(prd, freq);
+                assert(bnum > 0);
+                prdic_useband(prd, bnum);
             }
-            prdic_procrastinate(prd);
-            if (ncycles == 0 && wflag) {
-                if (!prdic_islocked(prd)) {
-                    wcycles++;
-                    if (wcycles >= (freq * duration)) {
-                        break;
+            assert(prdic_islocked(prd) == 0);
+            if (fval != 0.0) {
+                prdic_set_fparams(prd, fval);
+            }
+            ncycles = 0;
+            for (i = 0; i - wcycles < (freq * duration); i++) {
+                if (dperiod > 0) {
+                    struct timespec tsleep;
+
+                    dtime2timespec(dperiod, &tsleep);
+                    nanosleep(&tsleep, NULL);
+                }
+                prdic_procrastinate(prd);
+                if (ncycles == 0 && wflag) {
+                    if (!prdic_islocked(prd)) {
+                        wcycles++;
+                        if (wcycles >= (freq * duration)) {
+                            break;
+                        }
+                        if (vflag != 0) {
+                            printf("unlocked: %lld\r", (long long)wcycles);
+                            fflush(stdout);
+                        }
+                        startncycles = prdic_getncycles_ref(prd);
+                        continue;
                     }
-                    if (vflag != 0) {
-                        printf("unlocked: %lld\r", (long long)wcycles);
+                    if (wcycles > 0 && vflag != 0) {
+                        printf("\n");
                         fflush(stdout);
                     }
-                    startncycles = prdic_getncycles_ref(prd);
-                    continue;
                 }
-                if (wcycles > 0 && vflag != 0) {
-                    printf("\n");
+                ncycles = prdic_getncycles_ref(prd);
+                if (vflag != 0) {
+                    printf("%lld\r", (long long)(ncycles - startncycles));
                     fflush(stdout);
                 }
             }
-            ncycles = prdic_getncycles_ref(prd);
+            ncycles -= startncycles;
             if (vflag != 0) {
-                printf("%lld\r", (long long)(ncycles - startncycles));
-                fflush(stdout);
+                printf("\n");
             }
-        }
-        ncycles -= startncycles;
-        if (vflag != 0) {
-            printf("\n");
-        }
-        prdic_free(prd);
-        if (mflag == 0) {
-            skew = 1.0 - ((double)ncycles / (freq * duration));
-            if (Lmax > 0 && !qflag) {
-                printf("load: %.1f%%, ", Lcur * 100.0);
+            if (argc == 2) {
+                prdic_free(prd);
+                prd = NULL;
             }
-            if (Sflag == 0) {
-                printf("%s%f%s\n", silence("skew: "), skew * 100.0, silence("%"));
+            if (mflag == 0) {
+                skew = 1.0 - ((double)ncycles / (freq * duration));
+                if (Lmax > 0 && !qflag) {
+                    printf("load: %.1f%%, ", Lcur * 100.0);
+                }
+                if (Sflag == 0) {
+                    printf("%s%f%s\n", silence("skew: "), skew * 100.0, silence("%"));
+                } else {
+                    printf("%s%d\n", silence("skew: "), (int)(skew * 100000.0));
+                }
             } else {
-                printf("%s%d\n", silence("skew: "), (int)(skew * 100000.0));
+                mcycles = ncycles - (freq * duration);
+                printf("%s%jd\n", silence("missed cycles: "), (intmax_t)mcycles);
             }
-        } else {
-            mcycles = ncycles - (freq * duration);
-            printf("%s%jd\n", silence("missed cycles: "), (intmax_t)mcycles);
+            fflush(stdout);
         }
-        fflush(stdout);
-    }
+        argv += 2;
+        argc -= 2;
+    } while (argc > 0);
 
     return (0);
 }
