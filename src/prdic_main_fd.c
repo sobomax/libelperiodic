@@ -49,7 +49,7 @@
 int
 _prdic_procrastinate_FD(struct prdic_band *pip_ab)
 {
-    double eval, teval;
+    double eval, teval, add_delay;
 #if PRD_DEBUG
     static long long nrun = -1;
 
@@ -57,8 +57,9 @@ _prdic_procrastinate_FD(struct prdic_band *pip_ab)
 #endif
 
 #if PRD_DEBUG
+    add_delay = pip_ab->period * pip_ab->add_delay_fltrd.lastval;
     fprintf(stderr, "nrun=%lld add_delay=%f add_delay_fltrd=%f lastval=%f\n",
-      nrun, pip_ab->add_delay, pip_ab->add_delay_fltrd.lastval,
+      nrun, add_delay, pip_ab->add_delay_fltrd.lastval,
       pip_ab->loop_error.lastval);
     fflush(stderr);
 #endif
@@ -68,8 +69,8 @@ _prdic_procrastinate_FD(struct prdic_band *pip_ab)
     eval = _prdic_FD_get_error(&pip_ab->detector.freq, &pip_ab->last_tclk);
     eval = pip_ab->loop_error.lastval + erf(eval - pip_ab->loop_error.lastval);
     _prdic_recfilter_apply(&pip_ab->loop_error, eval);
-    pip_ab->add_delay = pip_ab->add_delay_fltrd.lastval + eval;
-    _prdic_recfilter_apply(&pip_ab->add_delay_fltrd, pip_ab->add_delay);
+    add_delay = pip_ab->add_delay_fltrd.lastval + eval;
+    _prdic_recfilter_apply(&pip_ab->add_delay_fltrd, add_delay);
     if (pip_ab->add_delay_fltrd.lastval < 0.0) {
         pip_ab->add_delay_fltrd.lastval = 0;
     } else if (pip_ab->add_delay_fltrd.lastval > 1.0) {
