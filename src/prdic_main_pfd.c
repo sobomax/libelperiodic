@@ -28,8 +28,8 @@
 #include <sys/time.h>
 #include <assert.h>
 #include <math.h>
-//#define PRD_DEBUG 1
-#if defined(PRD_DEBUG)
+#define PRD_DEBUG 0
+#if PRD_DEBUG
 #include <stdio.h>
 #endif
 #include <stdlib.h>
@@ -45,24 +45,26 @@
 #include "prdic_band.h"
 #include "prdic_time.h"
 
+const double mineval = 0.001;
+const double maxeval = 2.0;
+
 int
 _prdic_procrastinate_PFD(struct prdic_band *pip_ab)
 {
     struct timespec tsleep, tremain;
     int rval;
-    double eval;
+    double add_delay, eval;
     struct timespec eptime;
-#if defined(PRD_DEBUG)
+#if PRD_DEBUG
     static long long nrun = -1;
 
     nrun += 1;
 #endif
 
-    eval = pip_ab->loop_error.lastval - 0.5;
-    if (eval <= 0.0)
+    if (pip_ab->add_delay_fltrd.lastval == mineval)
         goto skipdelay;
-
-    dtime2timespec(15.0 * eval / pip_ab->freq_hz, &tremain);
+    add_delay = pip_ab->period * pip_ab->add_delay_fltrd.lastval;
+    dtime2timespec(add_delay, &tremain);
 
     do {
         tsleep = tremain;
@@ -77,25 +79,35 @@ skipdelay:
     timespecmul(&pip_ab->last_tclk, &eptime, &pip_ab->tfreq_hz);
 
     eval = _prdic_PFD_get_error(&pip_ab->detector.phase, &pip_ab->last_tclk);
-    if (eval != 0.0) {
-        eval = pip_ab->loop_error.lastval + erf(eval - pip_ab->loop_error.lastval);
-        _prdic_recfilter_apply(&pip_ab->loop_error, eval);
-    }
 
-#if defined(PRD_DEBUG)
-    fprintf(stderr, "run=%lld raw_error=%f filtered_error=%f\n", nrun, eval,
-      pip_ab->loop_error.lastval);
+#if PRD_DEBUG
+    fprintf(stderr, "run=%lld raw_error=%f filtered_error=%f add_delay=%f\n", nrun, eval,
+      pip_ab->loop_error.lastval, pip_ab->add_delay_fltrd.lastval);
     fflush(stderr);
 #endif
 
-#if defined(PRD_DEBUG)
+#if PRD_DEBUG
     fprintf(stderr, "error=%f\n", eval);
-    if (eval == 0.0 || 1) {
-        fprintf(stderr, "last=%lld target=%lld\n", SEC(&pip_ab->last_tclk),
-          SEC(&pip_ab->detector.phase.target_tclk));
-    }
+    fprintf(stderr, "last=%lld target=%lld\n", (long long)SEC(&pip_ab->last_tclk),
+      (long long)SEC(&pip_ab->detector.phase.target_tclk));
     fflush(stderr);
 #endif
 
+    if (eval > 0) {
+        eval = _prdic_sigmoid(eval);
+        _prdic_recfilter_apply(&pip_ab->loop_error, eval);
+    } else {
+        _prdic_recfilter_apply(&pip_ab->loop_error, _prdic_sigmoid(-eval));
+    }
+    if (eval != 0.0) {
+        add_delay = pip_ab->add_delay_fltrd.lastval / (1.0 - eval);
+
+        _prdic_recfilter_apply(&pip_ab->add_delay_fltrd, add_delay);
+        if (pip_ab->add_delay_fltrd.lastval < mineval) {
+            pip_ab->add_delay_fltrd.lastval = mineval;
+        } else if (pip_ab->add_delay_fltrd.lastval > maxeval) {
+            pip_ab->add_delay_fltrd.lastval = maxeval;
+        }
+    }
     return (0);
 }
