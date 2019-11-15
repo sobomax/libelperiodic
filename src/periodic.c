@@ -38,6 +38,7 @@
 #include "prdic_pfd.h"
 #include "prdic_main_fd.h"
 #include "prdic_main_pfd.h"
+#include "prdic_recfilter.h"
 #include "prdic_band.h"
 #include "prdic_inst.h"
 #include "prdic_time.h"

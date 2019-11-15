@@ -36,6 +36,7 @@
 #include "prdic_math.h"
 #include "prdic_fd.h"
 #include "prdic_pfd.h"
+#include "prdic_recfilter.h"
 #include "prdic_band.h"
 #include "prdic_time.h"
 
