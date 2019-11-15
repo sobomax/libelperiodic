@@ -29,7 +29,7 @@
 #include <assert.h>
 #include <math.h>
 //#define PRD_DEBUG 1
-#if defined(PRD_DEBUG)
+#if PRD_DEBUG
 #include <stdio.h>
 #endif
 #include <stdlib.h>
@@ -50,13 +50,13 @@ int
 _prdic_procrastinate_FD(struct prdic_band *pip_ab)
 {
     double eval, teval;
-#if defined(PRD_DEBUG)
+#if PRD_DEBUG
     static long long nrun = -1;
 
     nrun += 1;
 #endif
 
-#if defined(PRD_DEBUG)
+#if PRD_DEBUG
     fprintf(stderr, "nrun=%lld add_delay=%f add_delay_fltrd=%f lastval=%f\n",
       nrun, pip_ab->add_delay, pip_ab->add_delay_fltrd.lastval,
       pip_ab->loop_error.lastval);
@@ -82,13 +82,13 @@ _prdic_procrastinate_FD(struct prdic_band *pip_ab)
     }
     _prdic_recfilter_apply(&pip_ab->sysload_fltrd, teval);
 
-#if defined(PRD_DEBUG)
+#if PRD_DEBUG
     fprintf(stderr, "run=%lld raw_error=%f filtered_error=%f teval=%f filtered_teval=%f\n", nrun,
       eval, pip_ab->loop_error.lastval, teval, pip_ab->sysload_fltrd.lastval);
     fflush(stderr);
 #endif
 
-#if defined(PRD_DEBUG)
+#if PRD_DEBUG
     fprintf(stderr, "error=%f\n", eval);
     if (eval == 0.0 || 1) {
         fprintf(stderr, "last=%lld target=%lld\n", SEC(&pip_ab->last_tclk),
