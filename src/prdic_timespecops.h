@@ -84,4 +84,4 @@
             NSEC(rvp) = tnsec;                                     \
         }                                                          \
     } while (0)
-#endif
+#endif /* _PRDIC_TIMESPECOPS_H_ */
