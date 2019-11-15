@@ -39,6 +39,9 @@
 #include "prdic_main_fd.h"
 #include "prdic_main_pfd.h"
 #include "prdic_recfilter.h"
+#include "prdic_types.h"
+#include "prdic_procchain.h"
+#include "prdic_shmtrig.h"
 #include "prdic_band.h"
 #include "prdic_inst.h"
 #include "prdic_time.h"
@@ -54,6 +57,8 @@ band_init(struct prdic_band *bp, enum prdic_det_type dt,
     dtime2timespec(bp->period, &bp->tperiod);
     dtime2timespec(freq_hz, &bp->tfreq_hz);
     _prdic_recfilter_init(&bp->loop_error, 0.96, 1.0, 0);
+    _prdic_shmtrig_init(&bp->le_shmtrig, 1, 0.3, 0.7);
+    bp->loop_error.procchain[0] = &(bp->le_shmtrig.link);
     _prdic_recfilter_init(&bp->add_delay_fltrd, 0.96, 1.0, 0);
     _prdic_recfilter_init(&bp->sysload_fltrd, 0.997, 0.0, 0);
     switch (dt) {
@@ -247,6 +252,15 @@ prdic_getload(void *prdic_inst)
 
     pip = (struct prdic_inst *)prdic_inst;
     return (pip->ab->sysload_fltrd.lastval);
+}
+
+int
+prdic_islocked(void *prdic_inst)
+{
+    struct prdic_inst *pip;
+
+    pip = (struct prdic_inst *)prdic_inst;
+    return (pip->ab->le_shmtrig.currval == 0);
 }
 
 void

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2019 Sippy Software, Inc., http://www.sippysoft.com
+ * Copyright (c) 2019 Sippy Software, Inc., http://www.sippysoft.com
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,27 +24,32 @@
  * SUCH DAMAGE.
  */
 
-#ifndef _PRDIC_BAND_H_
-#define _PRDIC_BAND_H_
+#include "prdic_types.h"
+#include "prdic_procchain.h"
+#include "prdic_shmtrig.h"
 
-struct prdic_band {
-    int id;
-    double freq_hz;
-    double period;
-    struct timespec tperiod;
-    struct timespec tfreq_hz;
-    struct timespec epoch;
-    struct _prdic_recfilter loop_error;
-    struct _prdic_shmtrig le_shmtrig;
-    struct _prdic_recfilter sysload_fltrd;
-    struct _prdic_recfilter add_delay_fltrd;
-    union {
-      struct _prdic_PFD phase;
-      struct _prdic_FD freq;
-    } detector;
-    struct timespec last_tclk;
-    enum prdic_det_type det_type;
-    struct prdic_band *next;
-};
+static double
+_prdic_shmtrig_update(void *arg, double val)
+{
+    struct _prdic_shmtrig *pub;
 
-#endif /* _PRDIC_BAND_H_ */
+    pub = (struct _prdic_shmtrig *)arg;
+    if (pub->currval && val < pub->lTrs) {
+        pub->currval = 0;
+    } else if (!pub->currval && val > pub->hTrs) {
+        pub->currval = 1;
+    }
+    return (pub->currval);
+}
+
+void
+_prdic_shmtrig_init(struct _prdic_shmtrig *pub, unsigned int ival, double lTrs,
+  double hTrs)
+{
+
+    pub->currval = ival;
+    pub->lTrs = lTrs;
+    pub->hTrs = hTrs;
+    pub->link.handle = _prdic_shmtrig_update;
+    pub->link.arg = pub;
+}

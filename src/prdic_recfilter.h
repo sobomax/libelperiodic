@@ -27,6 +27,8 @@
 #ifndef _PRDIC_RECFILTER_H_
 #define _PRDIC_RECFILTER_H_
 
+struct _prdic_procchain;
+
 struct _prdic_recfilter {
     double a;
     double b;
@@ -34,6 +36,7 @@ struct _prdic_recfilter {
     double minval;
     double maxval;
     int peak_detect;
+    struct _prdic_procchain *procchain[2];
 };
 
 /* Function prototypes */

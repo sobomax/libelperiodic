@@ -40,5 +40,6 @@ void prdic_useband(void *prdic_inst, int bnum);
 enum prdic_det_type prdic_set_det_type(void *prdic_inst, int bnum,
   enum prdic_det_type);
 double prdic_getload(void *);
+int prdic_islocked(void *);
 
-#endif
+#endif /* _ELPERIODIC_H_ */

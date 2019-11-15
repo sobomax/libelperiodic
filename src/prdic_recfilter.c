@@ -31,10 +31,13 @@
 
 #include "prdic_math.h"
 #include "prdic_recfilter.h"
+#include "prdic_types.h"
+#include "prdic_procchain.h"
 
 double
 _prdic_recfilter_apply(struct _prdic_recfilter *f, double x)
 {
+    double chainval;
 
     f->lastval = f->a * x + f->b * f->lastval;
     if (f->peak_detect != 0) {
@@ -43,6 +46,14 @@ _prdic_recfilter_apply(struct _prdic_recfilter *f, double x)
         } if (f->lastval < f->minval) {
             f->minval = f->maxval;
         }
+    }
+    for (int i = 0; f->procchain[i] != NULL; i++) {
+        struct _prdic_procchain *clnk;
+
+        if (i == 0)
+            chainval = f->lastval;
+        clnk = f->procchain[i];
+        chainval = clnk->handle(clnk->arg, chainval);
     }
     return f->lastval;
 }
