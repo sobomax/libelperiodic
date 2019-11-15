@@ -44,24 +44,17 @@
 #include "prdic_main_fd.h"
 #include "prdic_band.h"
 #include "prdic_time.h"
+#include "prdic_main.h"
 
 int
 _prdic_procrastinate_FD(struct prdic_band *pip_ab)
 {
-    struct timespec tsleep, tremain;
-    int rval;
     double eval, teval;
-    struct timespec eptime;
 #if defined(PRD_DEBUG)
     static long long nrun = -1;
 
     nrun += 1;
 #endif
-
-    if (pip_ab->add_delay_fltrd.lastval <= 0) {
-         goto skipdelay;
-    }
-    dtime2timespec(pip_ab->add_delay_fltrd.lastval * pip_ab->period, &tremain);
 
 #if defined(PRD_DEBUG)
     fprintf(stderr, "nrun=%lld add_delay=%f add_delay_fltrd=%f lastval=%f\n",
@@ -69,17 +62,8 @@ _prdic_procrastinate_FD(struct prdic_band *pip_ab)
       pip_ab->loop_error.lastval);
     fflush(stderr);
 #endif
-    do {
-        tsleep = tremain;
-        memset(&tremain, '\0', sizeof(tremain));
-        rval = nanosleep(&tsleep, &tremain);
-    } while (rval < 0 && !timespeciszero(&tremain));
 
-skipdelay:
-    getttime(&eptime, 1);
-
-    timespecsub(&eptime, &pip_ab->epoch);
-    timespecmul(&pip_ab->last_tclk, &eptime, &pip_ab->tfreq_hz);
+    _prdic_do_procrastinate(pip_ab, pip_ab->add_delay_fltrd.lastval <= 0);
 
     eval = _prdic_FD_get_error(&pip_ab->detector.freq, &pip_ab->last_tclk);
     eval = pip_ab->loop_error.lastval + erf(eval - pip_ab->loop_error.lastval);
