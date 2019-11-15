@@ -14,6 +14,6 @@ make clean all
 cd src
 for arg in '' # '-p'
 do
-  ./testskew -L 200 5
-  sh -x ./findskew.sh ${arg}
+  ./testskew ${arg} -L 200 5
 done
+sh -x ./findskew.sh
