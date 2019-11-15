@@ -26,6 +26,9 @@ after_success:
     fi
 notifications:
   webhooks: https://coveralls.io/webhook
+stages:
+  - name: Update Coverity Report
+    if: branch = master AND type = cron
 jobs:
   include:
     - stage: Update Coverity Report
