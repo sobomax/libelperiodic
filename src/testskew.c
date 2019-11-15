@@ -26,7 +26,7 @@ int
 main(int argc, char * const argv[])
 {
     void *prd;
-    int i, ch, vflag, qflag, mflag, Sflag, pflag;
+    int i, ch, vflag, qflag, mflag, Sflag, pflag, wflag;
     double freq, duration, skew, fval, Lmin, Lmax, Lcur;
     time_t ncycles, mcycles;
 
@@ -38,7 +38,8 @@ main(int argc, char * const argv[])
     fval = 0.0;
     Lmin = 0.0;
     Lmax = 0.0;
-    while ((ch = getopt(argc, argv, "vqmSf:pL")) != -1) {
+    wflag = 0;
+    while ((ch = getopt(argc, argv, "vqmSf:pLw")) != -1) {
          switch (ch) {
          case 'v':
              vflag = 1;
@@ -69,6 +70,10 @@ main(int argc, char * const argv[])
              Lmax = 1.1;
              break;
 
+         case 'w':
+             wflag = 1;
+             break;
+
          case '?':
          default:
              usage();
@@ -82,14 +87,19 @@ main(int argc, char * const argv[])
     freq = atof(argv[0]);
     duration = atof(argv[1]);
     for (Lcur = Lmin; Lcur <= Lmax; Lcur += 0.05) {
+        int wcycles = 0;
+        time_t startncycles = 0;
+
         double dperiod = Lcur / freq;
         prd = prdic_init(freq, 0.0);
+        assert(prdic_islocked(prd) == 0);
         if (pflag)
             assert(prdic_set_det_type(prd, 0, PRDIC_DET_PHASE) == PRDIC_DET_FREQ);
         if (fval != 0.0) {
             prdic_set_fparams(prd, fval);
         }
-        for (i = 0; i < (freq * duration); i++) {
+        ncycles = 0;
+        for (i = 0; i - wcycles < (freq * duration); i++) {
             if (dperiod > 0) {
                 struct timespec tsleep;
 
@@ -97,12 +107,31 @@ main(int argc, char * const argv[])
                 nanosleep(&tsleep, NULL);
             }
             prdic_procrastinate(prd);
+            if (ncycles == 0 && wflag) {
+                if (!prdic_islocked(prd)) {
+                    wcycles++;
+                    if (wcycles >= (freq * duration)) {
+                        break;
+                    }
+                    if (vflag != 0) {
+                        printf("unlocked: %lld\r", (long long)wcycles);
+                        fflush(stdout);
+                    }
+                    startncycles = prdic_getncycles_ref(prd);
+                    continue;
+                }
+                if (wcycles > 0 && vflag != 0) {
+                    printf("\n");
+                    fflush(stdout);
+                }
+            }
             ncycles = prdic_getncycles_ref(prd);
             if (vflag != 0) {
-                printf("%lld\r", (long long)ncycles);
+                printf("%lld\r", (long long)(ncycles - startncycles));
                 fflush(stdout);
             }
         }
+        ncycles -= startncycles;
         if (vflag != 0) {
             printf("\n");
         }
