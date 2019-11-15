@@ -65,8 +65,8 @@ main(int argc, char * const argv[])
              break;
 
          case 'L':
-             Lmin = 0.00;
-             Lmax = 1.03;
+             Lmin = 0.0;
+             Lmax = 1.1;
              break;
 
          case '?':
@@ -81,7 +81,7 @@ main(int argc, char * const argv[])
     }
     freq = atof(argv[0]);
     duration = atof(argv[1]);
-    for (Lcur = Lmin; Lcur <= Lmax; Lcur += 0.01) {
+    for (Lcur = Lmin; Lcur <= Lmax; Lcur += 0.05) {
         double dperiod = Lcur / freq;
         prd = prdic_init(freq, 0.0);
         if (pflag)
@@ -110,7 +110,7 @@ main(int argc, char * const argv[])
         if (mflag == 0) {
             skew = 1.0 - ((double)ncycles / (freq * duration));
             if (Lmax > 0 && !qflag) {
-                printf("load: %f, ", Lcur * 100.0);
+                printf("load: %.1f%%, ", Lcur * 100.0);
             }
             if (Sflag == 0) {
                 printf("%s%f%s\n", silence("skew: "), skew * 100.0, silence("%"));
