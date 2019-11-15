@@ -25,7 +25,11 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef _PRDIC_MAIN_H_
+#define _PRDIC_MAIN_H_
+
 struct prdic_band;
 
 void _prdic_do_procrastinate(struct prdic_band *pip_ab, int skipdelay);
 
+#endif /* _PRDIC_MAIN_H_ */
