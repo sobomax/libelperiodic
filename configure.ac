@@ -1,4 +1,4 @@
-AC_INIT(libelperiodic, 1.0, sobomax@sippysoft.com)
+AC_INIT(libelperiodic, [m4_esyscmd_s([git rev-parse --abbrev-ref HEAD])], [sobomax@sippysoft.com])
 
 AM_INIT_AUTOMAKE
 AM_MAINTAINER_MODE([disable])
@@ -7,6 +7,9 @@ LT_INIT
 
 AC_PROG_CC
 AC_PROG_RANLIB
+
+mydef_version=`git describe --always --dirty || date "+%Y%m%d%H%M%S"`
+AC_DEFINE_UNQUOTED([VERSION_GIT], ["$mydef_version"])
 
 AC_ARG_ENABLE(coverage,
   AC_HELP_STRING([--enable-coverage], [enable test coverage support]),
