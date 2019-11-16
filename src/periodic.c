@@ -223,7 +223,7 @@ prdic_set_fparams(void *prdic_inst, double fcoef)
     struct prdic_inst *pip;
 
     pip = (struct prdic_inst *)prdic_inst;
-    assert(pip->ab->loop_error.lastval == 0.0);
+    assert(pip->ab->loop_error.lastval == 1.0);
     _prdic_recfilter_adjust(&pip->ab->loop_error, fcoef);
 }
 
