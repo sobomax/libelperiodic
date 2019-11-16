@@ -81,7 +81,7 @@ main(int argc, char * const argv[])
     }
     argc -= optind;
     argv += optind;
-    if (argc == 0 && (argc % 2) != 0) {
+    if (argc == 0 || (argc % 2) != 0) {
         usage();
     }
     prd = NULL;
