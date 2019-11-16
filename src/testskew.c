@@ -146,14 +146,11 @@ main(int argc, char * const argv[])
             if (vflag != 0) {
                 printf("\n");
             }
-            if (argc == 2) {
-                prdic_free(prd);
-                prd = NULL;
-            }
             if (mflag == 0) {
                 skew = 1.0 - ((double)ncycles / (freq * duration));
                 if (Lmax > 0 && !qflag) {
-                    printf("load: %.1f%%, ", Lcur * 100.0);
+                    printf("load: %.1f%% (actual), %.1f%% (measured), ",
+                      Lcur * 100.0, prdic_getload(prd) * 100.0);
                 }
                 if (Sflag == 0) {
                     printf("%s%f%s\n", silence("skew: "), skew * 100.0, silence("%"));
@@ -165,6 +162,10 @@ main(int argc, char * const argv[])
                 printf("%s%jd\n", silence("missed cycles: "), (intmax_t)mcycles);
             }
             fflush(stdout);
+            if (argc == 2) {
+                prdic_free(prd);
+                prd = NULL;
+            }
         }
         argv += 2;
         argc -= 2;
