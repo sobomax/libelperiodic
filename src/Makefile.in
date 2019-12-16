@@ -137,7 +137,8 @@ am_libelperiodic_la_OBJECTS = libelperiodic_la-periodic.lo \
 	libelperiodic_la-prdic_main_pfd.lo \
 	libelperiodic_la-prdic_main.lo \
 	libelperiodic_la-prdic_recfilter.lo \
-	libelperiodic_la-prdic_shmtrig.lo
+	libelperiodic_la-prdic_shmtrig.lo \
+	libelperiodic_la-prdic_sign.lo
 libelperiodic_la_OBJECTS = $(am_libelperiodic_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -174,6 +175,7 @@ am__depfiles_remade = ./$(DEPDIR)/libelperiodic_la-periodic.Plo \
 	./$(DEPDIR)/libelperiodic_la-prdic_pfd.Plo \
 	./$(DEPDIR)/libelperiodic_la-prdic_recfilter.Plo \
 	./$(DEPDIR)/libelperiodic_la-prdic_shmtrig.Plo \
+	./$(DEPDIR)/libelperiodic_la-prdic_sign.Plo \
 	./$(DEPDIR)/testskew.Po
 am__mv = mv -f
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
@@ -345,7 +347,7 @@ libelperiodic_la_SOURCES = periodic.c prdic_math.c \
   prdic_pfd.c prdic_pfd.h prdic_main_fd.c prdic_main_fd.h \
   prdic_main_pfd.c prdic_main_pfd.h prdic_main.c prdic_main.h \
   prdic_recfilter.c prdic_recfilter.h prdic_shmtrig.c prdic_shmtrig.h \
-  prdic_procchain.h prdic_types.h
+  prdic_procchain.h prdic_types.h prdic_sign.c prdic_sign.h
 
 libelperiodic_la_DEPENDENCIES = Symbol.map
 libelperiodic_la_CFLAGS = -g3 -O0 -fPIC
@@ -454,6 +456,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libelperiodic_la-prdic_pfd.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libelperiodic_la-prdic_recfilter.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libelperiodic_la-prdic_shmtrig.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libelperiodic_la-prdic_sign.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/testskew.Po@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
@@ -545,6 +548,13 @@ libelperiodic_la-prdic_shmtrig.lo: prdic_shmtrig.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='prdic_shmtrig.c' object='libelperiodic_la-prdic_shmtrig.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libelperiodic_la_CFLAGS) $(CFLAGS) -c -o libelperiodic_la-prdic_shmtrig.lo `test -f 'prdic_shmtrig.c' || echo '$(srcdir)/'`prdic_shmtrig.c
+
+libelperiodic_la-prdic_sign.lo: prdic_sign.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libelperiodic_la_CFLAGS) $(CFLAGS) -MT libelperiodic_la-prdic_sign.lo -MD -MP -MF $(DEPDIR)/libelperiodic_la-prdic_sign.Tpo -c -o libelperiodic_la-prdic_sign.lo `test -f 'prdic_sign.c' || echo '$(srcdir)/'`prdic_sign.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libelperiodic_la-prdic_sign.Tpo $(DEPDIR)/libelperiodic_la-prdic_sign.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='prdic_sign.c' object='libelperiodic_la-prdic_sign.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libelperiodic_la_CFLAGS) $(CFLAGS) -c -o libelperiodic_la-prdic_sign.lo `test -f 'prdic_sign.c' || echo '$(srcdir)/'`prdic_sign.c
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -689,6 +699,7 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/libelperiodic_la-prdic_pfd.Plo
 	-rm -f ./$(DEPDIR)/libelperiodic_la-prdic_recfilter.Plo
 	-rm -f ./$(DEPDIR)/libelperiodic_la-prdic_shmtrig.Plo
+	-rm -f ./$(DEPDIR)/libelperiodic_la-prdic_sign.Plo
 	-rm -f ./$(DEPDIR)/testskew.Po
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
@@ -744,6 +755,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/libelperiodic_la-prdic_pfd.Plo
 	-rm -f ./$(DEPDIR)/libelperiodic_la-prdic_recfilter.Plo
 	-rm -f ./$(DEPDIR)/libelperiodic_la-prdic_shmtrig.Plo
+	-rm -f ./$(DEPDIR)/libelperiodic_la-prdic_sign.Plo
 	-rm -f ./$(DEPDIR)/testskew.Po
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
