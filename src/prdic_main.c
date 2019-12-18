@@ -25,6 +25,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <errno.h>
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
@@ -40,31 +41,57 @@
 #include "prdic_types.h"
 #include "prdic_procchain.h"
 #include "prdic_shmtrig.h"
+#include "prdic_inst.h"
 #include "prdic_band.h"
 #include "prdic_time.h"
+#include "prdic_sign.h"
 
 void
-_prdic_do_procrastinate(struct prdic_band *pip_ab, int skipdelay)
+_prdic_do_procrastinate(struct prdic_inst *pip, int skipdelay)
 {
     struct timespec tsleep, tremain;
-    int rval;
+    int rval, nint;
     double add_delay;
     struct timespec eptime;
 
-    if (skipdelay)
+    if (pip->sip != NULL) {
+        prdic_CFT_serve(pip->sip);
+        prdic_sign_unblock(pip->sip);
+    }
+    if (skipdelay) {
         goto skipdelay;
-    add_delay = pip_ab->period * pip_ab->add_delay_fltrd.lastval;
+    }
+
+    add_delay = pip->ab->period * pip->ab->add_delay_fltrd.lastval;
     dtime2timespec(add_delay, &tremain);
 
     do {
+        unsigned int nsigns;
+
         tsleep = tremain;
         memset(&tremain, '\0', sizeof(tremain));
+        if (pip->sip != NULL) {
+            nsigns = prdic_sign_getnrecv();
+        }
         rval = nanosleep(&tsleep, &tremain);
-    } while (rval < 0 && !timespeciszero(&tremain));
+        nint = (rval < 0 && errno == EINTR);
+        if (pip->sip != NULL) {
+            if (nint && nsigns == prdic_sign_getnrecv()) {
+                /* Got some interrupt, but it was not *our* signal */
+                break;
+            }
+            prdic_sign_block(pip->sip);
+            prdic_CFT_serve(pip->sip);
+            prdic_sign_unblock(pip->sip);
+        }
+    } while (nint && !timespeciszero(&tremain));
 
 skipdelay:
+    if (pip->sip != NULL) {
+        prdic_sign_block(pip->sip);
+    }
     getttime(&eptime, 1);
 
-    timespecsub(&eptime, &pip_ab->epoch);
-    timespecmul(&pip_ab->last_tclk, &eptime, &pip_ab->tfreq_hz);
+    timespecsub(&eptime, &pip->ab->epoch);
+    timespecmul(&pip->ab->last_tclk, &eptime, &pip->ab->tfreq_hz);
 }

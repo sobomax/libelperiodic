@@ -27,6 +27,7 @@
 #include <sys/time.h>
 #include <assert.h>
 #include <math.h>
+#include <signal.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
@@ -45,6 +46,7 @@
 #include "prdic_band.h"
 #include "prdic_inst.h"
 #include "prdic_time.h"
+#include "prdic_sign.h"
 
 static void
 band_init(struct prdic_band *bp, enum prdic_det_type dt,
@@ -84,17 +86,36 @@ prdic_init(double freq_hz, double off_from_now)
         goto e0;
     }
     memset(pip, '\0', sizeof(struct prdic_inst));
-    pip->ab = &pip->root_band;
-    if (getttime(&pip->ab->epoch, 0) != 0) {
+    pip->root_band = malloc(sizeof(struct prdic_band));
+    if (pip->root_band == NULL) {
         goto e1;
+    }
+    memset(pip->root_band, '\0', sizeof(struct prdic_band));
+    pip->ab = pip->root_band;
+    if (getttime(&pip->ab->epoch, 0) != 0) {
+        goto e2;
     }
     tplusdtime(&pip->ab->epoch, off_from_now);
     band_init(pip->ab, PRDIC_DET_FREQ, freq_hz);
     return ((void *)pip);
+e2:
+    free(pip->root_band);
 e1:
     free(pip);
 e0:
     return (NULL);
+}
+
+int
+prdic_CFT_enable(void *prdic_inst, int signum)
+{
+    struct prdic_inst *pip = (struct prdic_inst *)prdic_inst;
+
+    assert(pip->sip == NULL);
+    pip->sip = prdic_sign_setup(signum);
+    if (pip->sip == NULL)
+        return (-1);
+    return (0);
 }
 
 int
@@ -110,9 +131,9 @@ prdic_addband(void *prdic_inst, double freq_hz)
     if (bp == NULL)
         return (-1);
     memset(bp, '\0', sizeof(struct prdic_band));
-    bp->epoch = pip->root_band.epoch;
-    band_init(bp, pip->root_band.det_type, freq_hz);
-    for (tbp = &pip->root_band; tbp->next != NULL; tbp = tbp->next)
+    bp->epoch = pip->root_band->epoch;
+    band_init(bp, pip->root_band->det_type, freq_hz);
+    for (tbp = pip->root_band; tbp->next != NULL; tbp = tbp->next)
         continue;
     bp->id = tbp->id + 1;
     assert(tbp->next == NULL);
@@ -142,7 +163,7 @@ prdic_findband(struct prdic_inst *pip, int bnum)
 {
     struct prdic_band *rbp;
 
-    for (rbp = &pip->root_band; rbp != NULL; rbp = rbp->next) {
+    for (rbp = pip->root_band; rbp != NULL; rbp = rbp->next) {
         if (rbp->id == bnum)
             break;
     }
@@ -209,9 +230,9 @@ prdic_procrastinate(void *prdic_inst)
     pip = (struct prdic_inst *)prdic_inst;
     switch (pip->ab->det_type) {
     case PRDIC_DET_FREQ:
-        return (_prdic_procrastinate_FD(pip->ab));
+        return (_prdic_procrastinate_FD(pip));
     case PRDIC_DET_PHASE:
-        return (_prdic_procrastinate_PFD(pip->ab));
+        return (_prdic_procrastinate_PFD(pip));
     default:
         abort();
     }
@@ -270,10 +291,13 @@ prdic_free(void *prdic_inst)
     struct prdic_band *tbp, *fbp;
 
     pip = (struct prdic_inst *)prdic_inst;
-    for (tbp = pip->root_band.next; tbp != NULL;) {
+    for (tbp = pip->root_band; tbp != NULL;) {
         fbp = tbp;
         tbp = tbp->next;
         free(fbp);
+    }
+    if (pip->sip != NULL) {
+        prdic_sign_dtor(pip->sip);
     }
     free(prdic_inst);
 }

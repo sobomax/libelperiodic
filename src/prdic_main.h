@@ -28,8 +28,8 @@
 #ifndef _PRDIC_MAIN_H_
 #define _PRDIC_MAIN_H_
 
-struct prdic_band;
+struct prdic_inst;
 
-void _prdic_do_procrastinate(struct prdic_band *pip_ab, int skipdelay);
+void _prdic_do_procrastinate(struct prdic_inst *, int);
 
 #endif /* _PRDIC_MAIN_H_ */

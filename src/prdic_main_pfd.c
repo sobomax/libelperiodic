@@ -46,6 +46,7 @@
 #include "prdic_types.h"
 #include "prdic_procchain.h"
 #include "prdic_shmtrig.h"
+#include "prdic_inst.h"
 #include "prdic_band.h"
 #include "prdic_time.h"
 #include "prdic_main.h"
@@ -54,46 +55,47 @@ const double mineval = 0.001;
 const double maxeval = 2.0;
 
 int
-_prdic_procrastinate_PFD(struct prdic_band *pip_ab)
+_prdic_procrastinate_PFD(struct prdic_inst *pip)
 {
     double add_delay, eval;
+    struct prdic_band *abp = pip->ab;
 #if PRD_DEBUG
     static long long nrun = -1;
 
     nrun += 1;
 #endif
 
-    _prdic_do_procrastinate(pip_ab, pip_ab->add_delay_fltrd.lastval == mineval);
+    _prdic_do_procrastinate(pip, abp->add_delay_fltrd.lastval == mineval);
 
-    eval = _prdic_PFD_get_error(&pip_ab->detector.phase, &pip_ab->last_tclk);
+    eval = _prdic_PFD_get_error(&abp->detector.phase, &abp->last_tclk);
 
 #if PRD_DEBUG
     fprintf(stderr, "run=%lld raw_error=%f filtered_error=%f add_delay=%f\n", nrun, eval,
-      pip_ab->loop_error.lastval, pip_ab->add_delay_fltrd.lastval);
+      abp->loop_error.lastval, abp->add_delay_fltrd.lastval);
     fflush(stderr);
 #endif
 
 #if PRD_DEBUG
     fprintf(stderr, "error=%f\n", eval);
-    fprintf(stderr, "last=%lld target=%lld\n", (long long)SEC(&pip_ab->last_tclk),
-      (long long)SEC(&pip_ab->detector.phase.target_tclk));
+    fprintf(stderr, "last=%lld target=%lld\n", (long long)SEC(abp->last_tclk),
+      (long long)SEC(abp->detector.phase.target_tclk));
     fflush(stderr);
 #endif
 
     if (eval > 0) {
         eval = _prdic_sigmoid(eval);
-        _prdic_recfilter_apply(&pip_ab->loop_error, eval);
+        _prdic_recfilter_apply(&abp->loop_error, eval);
     } else {
-        _prdic_recfilter_apply(&pip_ab->loop_error, _prdic_sigmoid(-eval));
+        _prdic_recfilter_apply(&abp->loop_error, _prdic_sigmoid(-eval));
     }
     if (eval != 0.0) {
-        add_delay = pip_ab->add_delay_fltrd.lastval / (1.0 - eval);
+        add_delay = abp->add_delay_fltrd.lastval / (1.0 - eval);
 
-        _prdic_recfilter_apply(&pip_ab->add_delay_fltrd, add_delay);
-        if (pip_ab->add_delay_fltrd.lastval < mineval) {
-            pip_ab->add_delay_fltrd.lastval = mineval;
-        } else if (pip_ab->add_delay_fltrd.lastval > maxeval) {
-            pip_ab->add_delay_fltrd.lastval = maxeval;
+        _prdic_recfilter_apply(&abp->add_delay_fltrd, add_delay);
+        if (abp->add_delay_fltrd.lastval < mineval) {
+            abp->add_delay_fltrd.lastval = mineval;
+        } else if (abp->add_delay_fltrd.lastval > maxeval) {
+            abp->add_delay_fltrd.lastval = maxeval;
         }
     }
     return (0);
