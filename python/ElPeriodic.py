@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2018 Sippy Software, Inc. All rights reserved.
+# Copyright (c) 2006-2019 Sippy Software, Inc. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -22,9 +22,9 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 from ctypes import cdll, c_double, c_void_p, c_int, c_long, Structure, \
-  pointer, POINTER
+  pointer, POINTER, CFUNCTYPE, byref, py_object, PYFUNCTYPE
+from ctypes import pythonapi
 from math import modf
-#from time import sleep
 import sys
 
 class timespec(Structure):
@@ -42,13 +42,40 @@ _elpl.prdic_addband.argtypes = [c_void_p, c_double]
 _elpl.prdic_addband.restype = c_int
 _elpl.prdic_useband.argtypes = [c_void_p, c_int]
 _elpl.prdic_set_epoch.argtypes = [c_void_p, POINTER(timespec)]
+_elpl_cbtype = PYFUNCTYPE(None, py_object)
+_elpl.prdic_call_from_thread.argtypes = [c_void_p, _elpl_cbtype, py_object]
+_elpl.prdic_call_from_thread.restype = c_int
+_elpl.prdic_CFT_enable.argtypes = [c_void_p, c_int]
+_elpl.prdic_CFT_enable.restype = c_int
+
+class _elpl_cb(object):
+    def __init__(self, handler, args):
+        self.handler = handler
+        self.args = args
+
+#    def __del__(self):
+#        print('_ptrcall.__del__(%s)' % (self,))
 
 #h = _elpl.prdic_init(200.0, 0.0)
 #sleep(20)
 
+def _elpl_ptrcall(cbobj):
+#    print('_ptrcall(%s,%s,%s)' % (cbobj, cbobj.handler, cbobj.args))
+    if pythonapi == None:
+        # Happens when interpreter is being shut down
+        return
+    try:
+        cbobj.handler(*cbobj.args)
+    except Exception as e:
+        sys.stderr.write('call_from_thread %s%s failed: %s\n' % (cbobj.handler, cbobj.args, e))
+        sys.stderr.flush()
+    pyo = py_object(cbobj)
+    pythonapi.Py_DecRef(pyo)
+
 class ElPeriodic(object):
     _hndl = None
     _elpl = None
+    _cbfunc = None
 
     def __init__(self, freq, offst = 0.0):
         self._elpl = _elpl
@@ -71,20 +98,72 @@ class ElPeriodic(object):
         tv_frac, tv_sec = modf(dtime)
         ts.tv_sec = int(tv_sec)
         ts.tv_nsec = int(tv_frac * 1e+09)
-        self._elpl.prdic_set_epoch(self._hndl, pointer(ts))
+        self._elpl.prdic_set_epoch(self._hndl, byref(ts))
 
     def __del__(self):
         if bool(self._hndl):
             self._elpl.prdic_free(self._hndl)
 
+    def CFT_enable(self, signum):
+        if pythonapi == None:
+            raise Exception('pythonapi is None')
+        r = self._elpl.prdic_CFT_enable(self._hndl, c_int(signum))
+        if r != 0:
+            raise Exception('prdic_CFT_enable() = %d' % (r,))
+        self._cbfunc = _elpl_cbtype(_elpl_ptrcall)
+
+    def call_from_thread(self, handler, *args):
+        cbobj = _elpl_cb(handler, args)
+        pyo = py_object(cbobj)
+        pythonapi.Py_IncRef(pyo)
+        rval = self._elpl.prdic_call_from_thread(self._hndl, \
+          self._cbfunc, cbobj)
+        if rval != 0:
+            pythonapi.Py_DecRef(pyo)
+            raise Exception('call_from_thread() = %d' % (rval,))
+
+from threading import Thread
+
+def barfoo(a1, a2):
+    sys.stdout.write('\t\tbarfoo%12s\r' % ((a1, a2),))
+    sys.stdout.flush()
+
+class AnnoyingThread(Thread):
+    def __init__(self, elp):
+        Thread.__init__(self)
+        self.elp = elp
+        self.start()
+
+    def run(self):
+        from time import sleep
+        for i in range(0, 1000):
+            self.elp.call_from_thread(barfoo, 'bar', i)
+            sleep(0.01)
+        self.elp.call_from_thread(barfoo, 'bar', 'o')
+        self.elp = None
+
 if __name__ == '__main__':
+    from signal import SIGUSR1
     i = 0
     elp = ElPeriodic(200.0)
     elp.set_epoch(0.0)
-    while i < 20000:
+    elp.CFT_enable(SIGUSR1)
+    at = AnnoyingThread(elp)
+    while i < 10000:
         elp.procrastinate()
         i += 1
         sys.stdout.write('%d\r' % i)
         sys.stdout.flush()
+    at.join()
+    b1 = elp.addband(2.0)
+    elp.useband(b1)
+    j = 0
+    at = AnnoyingThread(elp)
+    while j < 100:
+        elp.procrastinate()
+        j += 1
+        sys.stdout.write('%d\r' % (i + j,))
+        sys.stdout.flush()
+    at.join()
     #print(h)
     del elp
