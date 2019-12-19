@@ -59,7 +59,7 @@ class _elpl_cb(object):
 #h = _elpl.prdic_init(200.0, 0.0)
 #sleep(20)
 
-def _elpl_ptrcall(cbobj):
+def _elpl_ptrcall_safe(cbobj):
 #    print('_ptrcall(%s,%s,%s)' % (cbobj, cbobj.handler, cbobj.args))
     if pythonapi == None:
         # Happens when interpreter is being shut down
@@ -69,6 +69,19 @@ def _elpl_ptrcall(cbobj):
     except Exception as e:
         sys.stderr.write('call_from_thread %s%s failed: %s\n' % (cbobj.handler, cbobj.args, e))
         sys.stderr.flush()
+    pyo = py_object(cbobj)
+    pythonapi.Py_DecRef(pyo)
+
+def _elpl_ptrcall_bare(cbobj):
+    if pythonapi == None:
+        # Happens when interpreter is being shut down
+        return
+    try:
+        cbobj.handler(*cbobj.args)
+    except Exception as e:
+        pyo = py_object(cbobj)
+        pythonapi.Py_DecRef(pyo)
+        raise e
     pyo = py_object(cbobj)
     pythonapi.Py_DecRef(pyo)
 
@@ -104,13 +117,13 @@ class ElPeriodic(object):
         if bool(self._hndl):
             self._elpl.prdic_free(self._hndl)
 
-    def CFT_enable(self, signum):
+    def CFT_enable(self, signum, ptrcall_class = _elpl_ptrcall_bare):
         if pythonapi == None:
             raise Exception('pythonapi is None')
         r = self._elpl.prdic_CFT_enable(self._hndl, c_int(signum))
         if r != 0:
             raise Exception('prdic_CFT_enable() = %d' % (r,))
-        self._cbfunc = _elpl_cbtype(_elpl_ptrcall)
+        self._cbfunc = _elpl_cbtype(ptrcall_class)
 
     def call_from_thread(self, handler, *args):
         cbobj = _elpl_cb(handler, args)
@@ -147,7 +160,7 @@ if __name__ == '__main__':
     i = 0
     elp = ElPeriodic(200.0)
     elp.set_epoch(0.0)
-    elp.CFT_enable(SIGUSR1)
+    elp.CFT_enable(SIGUSR1, ptrcall_class = _elpl_ptrcall_safe)
     at = AnnoyingThread(elp)
     while i < 10000:
         elp.procrastinate()
