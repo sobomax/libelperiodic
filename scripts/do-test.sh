@@ -13,6 +13,9 @@ ${CC} --version
 make all
 ./configure --enable-coverage
 make clean all
+sudo make install
+python3 setup.py build
+sudo python3 setup.py install
 
 if [ "${ARCH}" = "arm64" ]
 then
