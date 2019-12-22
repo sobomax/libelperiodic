@@ -28,6 +28,9 @@ make all
 ./configure --enable-coverage
 make clean all
 sudo make install
+
+sudo ldconfig
+
 python3 setup.py build
 sudo python3 setup.py install
 
