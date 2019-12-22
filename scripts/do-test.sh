@@ -9,6 +9,20 @@ uname -a
 ARCH=`uname -m`
 ${CC} --version
 
+_TCMD="/usr/bin/time"
+
+linux_time()
+{
+  "${_TCMD}" -f "\t%e real\t%U user\t%s sys" "${@}"
+}
+
+if "${_TCMD}" -f "" echo 2>/dev/null >/dev/null
+then
+  TCMD="linux_time"
+else
+  TCMD="${_TCMD}"
+fi
+
 ./configure
 make all
 ./configure --enable-coverage
@@ -21,6 +35,8 @@ if [ "${ARCH}" = "arm64" ]
 then
   exit 0
 fi
+
+${TCMD} python3 python/ElPeriodic.py
 
 cd src
 
