@@ -39,7 +39,7 @@ then
   exit 0
 fi
 
-${TCMD} python3 python/ElPeriodic.py
+${TCMD} -o ElPeriodic.timings python3 python/ElPeriodic.py
 
 cd src
 
