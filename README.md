@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/sobomax/libelperiodic.svg?branch=master)](https://travis-ci.org/sobomax/libelperiodic)
+[![Build Status](https://travis-ci.com/sobomax/libelperiodic.svg?branch=master)](https://travis-ci.com/sobomax/libelperiodic)
 [![Coverage Status](https://coveralls.io/repos/github/sobomax/libelperiodic/badge.svg?branch=master)](https://coveralls.io/github/sobomax/libelperiodic?branch=master)
 
 # libElPeriodic
