@@ -1,4 +1,7 @@
 SUBDIRS = src
+
+include_HEADERS = src/elperiodic.h
+
 EXTRA_DIST = setup.py python
 pkgpythondir = $(pythondir)/elperiodic
 
