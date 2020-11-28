@@ -35,8 +35,8 @@ jobs:
             compiler: 'gcc-mips64-cross'
           #- os: ubuntu-18.04
           #  compiler: 'gcc-arm32-cross'
-          - os: ubuntu-18.04
-            compiler: 'gcc-arm64-cross'
+          #- os: ubuntu-18.04
+          #  compiler: 'gcc-arm64-cross'
           - os: ubuntu-16.04
             compiler: 'gcc'
           - os: ubuntu-16.04
