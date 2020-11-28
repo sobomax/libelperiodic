@@ -11,6 +11,37 @@ expected to run at constant time intervals with smallest possible overhead
 and little or no support from the underlying run time environment.
 
 The library is optimized to align active periods of the control loop
-to the both set frequency and phase by applying phase locked loop design
-with a proportional phase detector and a low-pass filter as an error
-amplifier.
+to the set frequency (and optionally phase as well) by applying phase
+locked loop design with a proportional phase detector and a low-pass
+filter as an error amplifier.
+
+## Usage
+
+Sample usage pattern is demonstrated below. The code block denoted by the square
+brackets will be executing 100 times a second, untul the value returned by the
+`is_runnable()` routine is non-zero. Provided of course that the routine
+does not take more than 0.01 second to run on average and that OS scheduler
+plays the ball.
+
+    #include <elperiodic.h>
+
+    extern int is_runnable(void);
+
+    void
+    event_loop(void)
+    {
+        double frequency = 125.5; /* Hz */
+        void *elp;
+        int i;
+
+        prd = prdic_init(freq, 0.0);
+        assert(prd != NULL);
+
+        while (is_runnable()) {
+    //      [----------------------];
+    //      [Insert your logic here];
+    //      [----------------------];
+            prdic_procrastinate(prd);
+        }
+        prdic_free(prd);
+    }
