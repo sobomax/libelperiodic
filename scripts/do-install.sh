@@ -2,9 +2,9 @@
 
 set -e
 
-. $(dirname $0)/build.conf.sub
-
 PKGS="python3-pip"
+
+. $(dirname $0)/build.conf.sub
 
 if [ ! -z "${PRE_INSTALL_CMD}" ]
 then
