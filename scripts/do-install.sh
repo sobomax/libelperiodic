@@ -17,7 +17,7 @@ sudo pip3 install --upgrade pip
 pip3 install --user setuptools
 pip3 install --user cpp-coveralls
 
-if [ ! -z "${PRE_INSTALL_CMD}" ]
+if [ ! -z "${POST_INSTALL_CMD}" ]
 then
         ${POST_INSTALL_CMD}
 fi
