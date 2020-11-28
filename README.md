@@ -1,3 +1,4 @@
+[![Build Status@GitHub](https://github.com/sobomax/libelperiodic/workflows/Main%20CI/badge.svg?branch=master)](https://github.com/sobomax/libelperiodic/actions?query=branch%3Amaster++)
 [![Build Status](https://travis-ci.com/sobomax/libelperiodic.svg?branch=master)](https://travis-ci.com/sobomax/libelperiodic)
 [![Coverage Status](https://coveralls.io/repos/github/sobomax/libelperiodic/badge.svg?branch=master)](https://coveralls.io/github/sobomax/libelperiodic?branch=master)
 

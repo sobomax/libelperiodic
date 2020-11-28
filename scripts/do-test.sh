@@ -3,10 +3,11 @@
 set -e
 set -x
 
-CC=${CC:-cc}
-
 uname -a
 ARCH=`uname -m`
+COMPILER=${COMPILER:-gcc}
+. $(dirname $0)/build.conf.sub
+
 ${CC} --version
 
 _TCMD="/usr/bin/time"
@@ -34,12 +35,7 @@ sudo ldconfig
 python3 setup.py build
 sudo python3 setup.py install
 
-if [ "${ARCH}" = "arm64" ]
-then
-  exit 0
-fi
-
-${TCMD} -o ElPeriodic.timings python3 python/ElPeriodic.py
+#${TCMD} -o ElPeriodic.timings python3 python/ElPeriodic.py
 
 cd src
 
