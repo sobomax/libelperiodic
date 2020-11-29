@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from distutils.core import setup, Extension
+import os
 
 elp_srcs = ['src/periodic.c', 'src/prdic_math.c', \
  'src/prdic_fd.c', \
@@ -13,6 +14,11 @@ elp_srcs = ['src/periodic.c', 'src/prdic_math.c', \
 module1 = Extension('_elperiodic', sources = elp_srcs, \
     extra_link_args = ['-Wl,--version-script=src/Symbol.map',])
 
+def get_ex_mod():
+    if 'NO_PY_EXT' in os.environ:
+        return None
+    return [module1]
+
 kwargs = {'name':'ElPeriodic',
       'version':'1.0',
       'description':'Phase-locked userland scheduling library',
@@ -21,7 +27,7 @@ kwargs = {'name':'ElPeriodic',
       'url':'https://github.com/sobomax/libelperiodic',
       'packages':['elperiodic',],
       'package_dir':{'elperiodic':'python'},
-      'ext_modules': [module1]
+      'ext_modules': get_ex_mod()
      }
 
 if __name__ == '__main__':
