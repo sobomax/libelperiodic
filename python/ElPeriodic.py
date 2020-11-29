@@ -36,11 +36,12 @@ class timespec(Structure):
 _esuf = sysconfig.get_config_var('EXT_SUFFIX')
 if not _esuf:
     _esuf = '.so'
-
-import pathlib
-_ROOT = str(pathlib.Path(__file__).parent.absolute())
+try:
+    import pathlib
+    _ROOT = str(pathlib.Path(__file__).parent.absolute())
+except ImportError:
+    _ROOT = os.path.abspath(os.path.dirname(__file__))
 #print('ROOT: ' + str(_ROOT))
-#_ROOT = os.path.abspath(os.path.dirname(__file__))
 modloc = site.getsitepackages()
 modloc.insert(0, os.path.join(_ROOT, ".."))
 for p in modloc:
