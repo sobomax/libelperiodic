@@ -348,7 +348,6 @@ program_transform_name = @program_transform_name@
 psdir = @psdir@
 pyexecdir = @pyexecdir@
 pythondir = @pythondir@
-runstatedir = @runstatedir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
@@ -769,8 +768,8 @@ distclean-generic:
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
 	@echo "it deletes files that may require special tools to rebuild."
-@HAVE_PYTHON_FALSE@uninstall-local:
 @HAVE_PYTHON_FALSE@install-exec-local:
+@HAVE_PYTHON_FALSE@uninstall-local:
 clean: clean-recursive
 
 clean-am: clean-generic clean-libtool mostlyclean-am
@@ -870,6 +869,7 @@ uninstall-am: uninstall-includeHEADERS uninstall-local
 @HAVE_PYTHON_TRUE@	    --verbose)
 
 @HAVE_PYTHON_TRUE@install-exec-local:
+@HAVE_PYTHON_TRUE@	mkdir -p $(pkgpythondir)
 @HAVE_PYTHON_TRUE@	$(PYTHON) $(srcdir)/setup.py install \
 @HAVE_PYTHON_TRUE@	    --prefix $(DESTDIR)$(prefix) \
 @HAVE_PYTHON_TRUE@	    --record $(DESTDIR)$(pkgpythondir)/install_files.txt \
