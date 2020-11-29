@@ -12,6 +12,7 @@ all-local:
 	    --verbose)
 
 install-exec-local:
+	mkdir -p $(pkgpythondir)
 	$(PYTHON) $(srcdir)/setup.py install \
 	    --prefix $(DESTDIR)$(prefix) \
 	    --record $(DESTDIR)$(pkgpythondir)/install_files.txt \
