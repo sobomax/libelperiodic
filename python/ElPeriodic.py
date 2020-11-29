@@ -25,7 +25,7 @@ from ctypes import cdll, c_double, c_void_p, c_int, c_long, Structure, \
   pointer, POINTER, CFUNCTYPE, byref, py_object, PYFUNCTYPE
 from ctypes import pythonapi
 from math import modf
-import os, sys, site
+import os, sys, site, sysconfig
 
 class timespec(Structure):
     _fields_ = [
@@ -33,9 +33,20 @@ class timespec(Structure):
         ('tv_nsec', c_long)
     ]
 
-for p in site.getsitepackages():
+_esuf = sysconfig.get_config_var('EXT_SUFFIX')
+if not _esuf:
+    _esuf = '.so'
+
+import pathlib
+_ROOT = str(pathlib.Path(__file__).parent.absolute())
+#print('ROOT: ' + str(_ROOT))
+#_ROOT = os.path.abspath(os.path.dirname(__file__))
+modloc = site.getsitepackages()
+modloc.insert(0, os.path.join(_ROOT, ".."))
+for p in modloc:
    try:
-       _elpl = cdll.LoadLibrary(os.path.join(p, '_elperiodic.so'))
+       #print("Trying %s" % os.path.join(p, '_elperiodic' + _esuf))
+       _elpl = cdll.LoadLibrary(os.path.join(p, '_elperiodic' + _esuf))
    except:
        continue
    break
