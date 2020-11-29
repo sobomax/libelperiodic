@@ -3,6 +3,8 @@
 set -e
 set -x
 
+PYTHON_CMD="${PYTHON_CMD:-"python3"}"
+
 uname -a
 ARCH=`uname -m`
 COMPILER=${COMPILER:-gcc}
@@ -24,10 +26,13 @@ else
   TCMD="${_TCMD}"
 fi
 
-python3 setup.py build
-python3 setup.py sdist
-python3 setup.py bdist_wheel
-sudo python3 setup.py install
+${PYTHON_CMD} setup.py build
+${PYTHON_CMD} setup.py sdist
+if [ "`basename ${PYTHON_CMD}`" != "python2.7" ]
+then
+  ${PYTHON_CMD} setup.py bdist_wheel
+fi
+sudo ${PYTHON_CMD} setup.py install
 sudo find /usr -name _elp\*.so
 
-${TCMD} -o ElPeriodic.timings python3 tests/t_ElPeriodic.py
+${TCMD} -o ElPeriodic.timings ${PYTHON_CMD} tests/t_ElPeriodic.py
