@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 
-from distutils.core import setup, Extension
+try:
+    from setuptools import setup
+except ImportError:
+    from distutils.core import setup
+from distutils.core import Extension
 import os
 
 elp_srcs = ['src/periodic.c', 'src/prdic_math.c', \
