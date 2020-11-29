@@ -21,15 +21,22 @@ jobs:
     runs-on: ubuntu-latest
     env:
       COMPILER: ${{ matrix.compiler }}
+      PYTHON_CMD: "python${{ matrix.python-version }}"
 
     strategy:
       matrix:
+        python-version: ['2.7', '3.6', '3.7', '3.8']
         compiler: ['gcc', 'clang', 'gcc-9', 'gcc-10', 'clang-9', 'clang-10']
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
 
       - name: before_install
         run: sh -x scripts/do-install.sh
