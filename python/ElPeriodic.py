@@ -39,13 +39,13 @@ if not _esuf:
 
 import pathlib
 _ROOT = str(pathlib.Path(__file__).parent.absolute())
-#print('ROOT: ' + str(_ROOT))
+print('ROOT: ' + str(_ROOT))
 #_ROOT = os.path.abspath(os.path.dirname(__file__))
 modloc = site.getsitepackages()
 modloc.insert(0, os.path.join(_ROOT, ".."))
 for p in modloc:
    try:
-       #print("Trying %s" % os.path.join(p, '_elperiodic' + _esuf))
+       print("Trying %s" % os.path.join(p, '_elperiodic' + _esuf))
        _elpl = cdll.LoadLibrary(os.path.join(p, '_elperiodic' + _esuf))
    except:
        continue
