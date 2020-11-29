@@ -33,8 +33,11 @@ sudo make install
 sudo ldconfig
 
 python3 setup.py build
-python3 setup.py sdist
-python3 setup.py bdist_wheel
+if [ -z "${NO_WHEEL_TEST}" ]
+then
+  python3 setup.py sdist
+  python3 setup.py bdist_wheel
+fi
 sudo python3 setup.py install
 
 #${TCMD} -o ElPeriodic.timings python3 python/ElPeriodic.py
