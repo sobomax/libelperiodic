@@ -25,7 +25,7 @@ from ctypes import cdll, c_double, c_void_p, c_int, c_long, Structure, \
   pointer, POINTER, CFUNCTYPE, byref, py_object, PYFUNCTYPE
 from ctypes import pythonapi
 from math import modf
-import sys
+import os, sys, site
 
 class timespec(Structure):
     _fields_ = [
@@ -33,7 +33,14 @@ class timespec(Structure):
         ('tv_nsec', c_long)
     ]
 
-_elpl = cdll.LoadLibrary('libelperiodic.so')
+for p in site.getsitepackages():
+   try:
+       _elpl = cdll.LoadLibrary(os.path.join(p, '_elperiodic.so'))
+   except:
+       continue
+   break
+else:
+   _elpl = cdll.LoadLibrary('libelperiodic.so')
 _elpl.prdic_init.argtypes = [c_double, c_double]
 _elpl.prdic_init.restype = c_void_p
 _elpl.prdic_procrastinate.argtypes = [c_void_p,]
