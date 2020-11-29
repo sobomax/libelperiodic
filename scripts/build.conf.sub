@@ -27,6 +27,7 @@ gcc-mips64-cross)
 	export CC="mips64-linux-gnuabi64-gcc"
 	export AR="mips64-linux-gnuabi64-ar"
 	export RANLIB="mips64-linux-gnuabi64-ranlib"
+	export NO_PY_EXT=1
 	POST_INSTALL_CMD="setup_qemu mips64 gnuabi64"
 	PKGS="${PKGS} gcc-mips64-linux-gnuabi64 libc-dev-mips64-cross qemu-user-static"
 	;;
@@ -34,6 +35,7 @@ gcc-arm32-cross)
 	export CC="arm-linux-gnueabihf-gcc"
 	export AR="arm-linux-gnueabihf-ar"
 	export RANLIB="arm-linux-gnueabihf-ranlib"
+	export NO_PY_EXT=1
 	POST_INSTALL_CMD="setup_qemu arm gnueabihf"
 	PKGS="${PKGS} gcc-arm-linux-gnueabihf libc-dev-armhf-cross qemu-user-static"
 	;;
@@ -41,6 +43,7 @@ gcc-arm64-cross)
 	export CC="aarch64-linux-gnu-gcc"
 	export AR="aarch64-linux-gnu-ar"
 	export RANLIB="aarch64-linux-gnu-ranlib"
+	export NO_PY_EXT=1
 	POST_INSTALL_CMD="setup_qemu aarch64 gnu"
 	PKGS="${PKGS} gcc-aarch64-linux-gnu libc-dev-arm64-cross qemu-user-static"
 	;;
