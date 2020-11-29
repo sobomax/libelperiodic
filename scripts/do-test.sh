@@ -24,9 +24,9 @@ else
   TCMD="${_TCMD}"
 fi
 
-./configure
+./configure --without-python
 make all
-./configure --enable-coverage
+./configure --without-python --enable-coverage
 make clean all
 sudo make install
 
