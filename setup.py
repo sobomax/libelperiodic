@@ -24,7 +24,5 @@ kwargs = {'name':'ElPeriodic',
       'ext_modules': [module1]
      }
 
-import sys
-
 if __name__ == '__main__':
     setup(**kwargs)
