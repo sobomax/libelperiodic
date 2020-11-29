@@ -95,3 +95,6 @@ clang-10)
 	exit 1
 	;;
 esac
+
+_PYTHON_CMD="${PYTHON_CMD:-"python3"}"
+PYTHON_CMD="`which "${_PYTHON_CMD}"`"

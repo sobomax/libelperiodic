@@ -3,8 +3,6 @@
 set -e
 set -x
 
-PYTHON_CMD="${PYTHON_CMD:-"python3"}"
-
 uname -a
 ARCH=`uname -m`
 COMPILER=${COMPILER:-gcc}

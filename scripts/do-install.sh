@@ -1,7 +1,6 @@
 #!/bin/sh
 
 set -e
-PYTHON_CMD="${PYTHON_CMD:-"python3"}"
 
 PKGS="python3-pip"
 
