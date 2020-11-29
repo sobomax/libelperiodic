@@ -50,5 +50,7 @@ plays the ball.
 
 It came about having to write the same code over and over again in multiple
 real-time projects, ranging from game [Digger](https://github.com/sobomax/digger),
-RTP relay server [RTPProxy](https://github.com/sippy/rtpproxy) and most recently
-in the [Python Sippy B2BUA](https://github.com/sippy/b2bua).
+RTP relay server [RTPProxy](https://github.com/sippy/rtpproxy). It has also
+been recently utilized to replace a heavy-weight (and at the time not portable
+to Python 3) "Twisted" framework in the
+[Python Sippy B2BUA](https://github.com/sippy/b2bua) project.
