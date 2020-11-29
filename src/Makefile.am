@@ -5,7 +5,8 @@ libelperiodic_la_SOURCES = periodic.c prdic_math.c \
   prdic_main_pfd.c prdic_main_pfd.h prdic_main.c prdic_main.h \
   prdic_recfilter.c prdic_recfilter.h prdic_shmtrig.c prdic_shmtrig.h \
   prdic_procchain.h prdic_types.h prdic_sign.c prdic_sign.h \
-  prdic_sign_ctx.h prdic_sign_impl.h
+  prdic_sign_ctx.h prdic_sign_impl.h prdic_band.h src/prdic_inst.h \
+  src/prdic_time.h
 libelperiodic_la_DEPENDENCIES = Symbol.map
 libelperiodic_la_CFLAGS = -g3 -O0 -fPIC
 libelperiodic_la_LDFLAGS = -version-info 1 -Wl,--version-script=$(srcdir)/Symbol.map -lm @RT_LIB@
