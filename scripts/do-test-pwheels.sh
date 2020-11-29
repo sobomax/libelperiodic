@@ -30,4 +30,4 @@ python3 setup.py bdist_wheel
 sudo python3 setup.py install
 sudo find /usr -name _elp\*.so
 
-${TCMD} -o ElPeriodic.timings python3 python/ElPeriodic.py
+${TCMD} -o ElPeriodic.timings python3 tests/t_ElPeriodic.py
