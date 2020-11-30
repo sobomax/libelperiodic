@@ -24,7 +24,7 @@ def get_ex_mod():
     return [module1]
 
 kwargs = {'name':'ElPeriodic',
-      'version':'1.0',
+      'version':'1.1',
       'description':'Phase-locked userland scheduling library',
       'author':'Maksym Sobolyev',
       'author_email':'sobomax@gmail.com',
