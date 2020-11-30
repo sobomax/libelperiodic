@@ -23,16 +23,29 @@ def get_ex_mod():
         return None
     return [module1]
 
-kwargs = {'name':'ElPeriodic',
-      'version':'1.1',
+with open("README.md", "r") as fh:
+    long_description = fh.read()
+
+kwargs = {
+      'name':'ElPeriodic',
+      'version':'1.2',
       'description':'Phase-locked userland scheduling library',
+      'long_description': long_description,
+      'long_description_content_type': "text/markdown",
       'author':'Maksym Sobolyev',
       'author_email':'sobomax@gmail.com',
       'url':'https://github.com/sobomax/libelperiodic',
       'packages':['elperiodic',],
       'package_dir':{'elperiodic':'python'},
-      'ext_modules': get_ex_mod()
-     }
+      'ext_modules': get_ex_mod(),
+      'python_requires': '>=2.7',
+      'classifiers': [
+            'License :: OSI Approved :: BSD License',
+            'Operating System :: POSIX',
+            'Programming Language :: C',
+            'Programming Language :: Python'
+      ]
+}
 
 if __name__ == '__main__':
     setup(**kwargs)
