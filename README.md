@@ -32,7 +32,6 @@ plays the ball.
     {
         double frequency = 125.5; /* Hz */
         void *elp;
-        int i;
 
         prd = prdic_init(freq, 0.0);
         assert(prd != NULL);
