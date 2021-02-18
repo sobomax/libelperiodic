@@ -16,6 +16,7 @@ PIP_CMD="${PYTHON_CMD} -m pip"
 sudo -H DEBIAN_FRONTEND=noninteractive apt-get update -y
 sudo -H DEBIAN_FRONTEND=noninteractive apt-get -y install ${PKGS}
 #sudo ${PIP_CMD} install --upgrade pip
+${PIP_CMD} install --user setuptools_rust # XXX remove me https://github.com/sobomax/libelperiodic/runs/1929256134?check_suite_focus=true#step:3:178
 ${PIP_CMD} install --user setuptools
 ${PIP_CMD} install --user cpp-coveralls
 
