@@ -15,7 +15,7 @@ PIP_CMD="${PYTHON_CMD} -m pip"
 
 sudo -H DEBIAN_FRONTEND=noninteractive apt-get update -y
 sudo -H DEBIAN_FRONTEND=noninteractive apt-get -y install ${PKGS}
-sudo ${PIP_CMD} install --upgrade pip
+#sudo ${PIP_CMD} install --upgrade pip
 ${PIP_CMD} install --user setuptools
 ${PIP_CMD} install --user cpp-coveralls
 
