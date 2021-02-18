@@ -133,7 +133,7 @@ class ElPeriodic(object):
         self._elpl.prdic_set_epoch(self._hndl, byref(ts))
 
     def __del__(self):
-        if bool(self._hndl):
+        if bool(self._hndl) and self._elpl.prdic_free != None:
             self._elpl.prdic_free(self._hndl)
 
     def CFT_enable(self, signum, ptrcall_class = _elpl_ptrcall_bare):
