@@ -35,6 +35,7 @@ struct prdic_band {
     struct timespec tfreq_hz;
     struct timespec epoch;
     struct _prdic_recfilter loop_error;
+    struct _prdic_shmtrig le_shmtrig;
     struct _prdic_recfilter sysload_fltrd;
     struct _prdic_recfilter add_delay_fltrd;
     union {
@@ -42,7 +43,6 @@ struct prdic_band {
       struct _prdic_FD freq;
     } detector;
     struct timespec last_tclk;
-    double add_delay;
     enum prdic_det_type det_type;
     struct prdic_band *next;
 };

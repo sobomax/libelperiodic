@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Sippy Software, Inc., http://www.sippysoft.com
+ * Copyright (c) 2019 Sippy Software, Inc., http://www.sippysoft.com
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,24 +24,32 @@
  * SUCH DAMAGE.
  */
 
-#ifndef _PRDIC_MATH_H_
-#define _PRDIC_MATH_H_
+#include "prdic_types.h"
+#include "prdic_procchain.h"
+#include "prdic_shmtrig.h"
 
-#ifdef MIN
-#undef MIN
-#endif
-#ifdef MAX
-#undef MAX
-#endif
-#ifdef ABS
-#undef ABS
-#endif
-#define MIN(x, y)       (((x) > (y)) ? (y) : (x))
-#define MAX(x, y)       (((x) > (y)) ? (x) : (y))
-#define ABS(x)          ((x) > 0 ? (x) : (-x))
+static double
+_prdic_shmtrig_update(void *arg, double val)
+{
+    struct _prdic_shmtrig *pub;
 
-/* Function prototypes */
-double _prdic_sigmoid(double);
-double _prdic_freqoff_to_period(double freq_0, double foff_c, double foff_x);
+    pub = (struct _prdic_shmtrig *)arg;
+    if (pub->currval && val < pub->lTrs) {
+        pub->currval = 0;
+    } else if (!pub->currval && val > pub->hTrs) {
+        pub->currval = 1;
+    }
+    return (pub->currval);
+}
 
-#endif /* _PRDIC_MATH_H_ */
+void
+_prdic_shmtrig_init(struct _prdic_shmtrig *pub, unsigned int ival, double lTrs,
+  double hTrs)
+{
+
+    pub->currval = ival;
+    pub->lTrs = lTrs;
+    pub->hTrs = hTrs;
+    pub->link.handle = _prdic_shmtrig_update;
+    pub->link.arg = pub;
+}

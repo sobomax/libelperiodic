@@ -28,10 +28,13 @@
 #define _PRDIC_INST_H_
 
 struct prdic_band;
+struct sigaction;
+struct prdic_sign_ctx;
 
 struct prdic_inst {
-    struct prdic_band root_band;
+    struct prdic_band *root_band;
     struct prdic_band *ab;
+    struct prdic_sign *sip;
 };
 
 #endif /* _PRDIC_INST_H_ */

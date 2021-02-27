@@ -40,6 +40,10 @@
     } while (0)
 
 #define timespeciszero(t) (SEC(t) == 0 && NSEC(t) == 0)
+
+#ifdef timespecadd
+#undef timespecadd
+#endif
 #define timespecadd(vvp, uvp)           \
     do {                                \
         SEC(vvp) += SEC(uvp);           \
@@ -50,6 +54,9 @@
         }                               \
     } while (0)
 
+#ifdef timespecsub
+#undef timespecsub
+#endif
 #define timespecsub(vvp, uvp)           \
     do {                                \
         SEC(vvp) -= SEC(uvp);           \
@@ -84,4 +91,4 @@
             NSEC(rvp) = tnsec;                                     \
         }                                                          \
     } while (0)
-#endif
+#endif /* _PRDIC_TIMESPECOPS_H_ */

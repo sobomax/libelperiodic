@@ -1,17 +1,17 @@
 /*
- * Copyright (c) 2016, sobomax
+ * Copyright (c) 2019 Sippy Software, Inc., http://www.sippysoft.com
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * * Redistributions of source code must retain the above copyright notice, this
  *   list of conditions and the following disclaimer.
- * 
+ *
  * * Redistributions in binary form must reproduce the above copyright notice,
  *   this list of conditions and the following disclaimer in the documentation
  *   and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -24,24 +24,12 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _ELPERIODIC_H_
-#define _ELPERIODIC_H_
+struct prdic_sign;
 
-enum prdic_det_type {PRDIC_DET_FREQ, PRDIC_DET_PHASE};
+struct prdic_sign *prdic_sign_setup(int);
+void prdic_CFT_serve(struct prdic_sign *);
+void prdic_sign_dtor(struct prdic_sign *);
+void prdic_sign_block(const struct prdic_sign *);
+void prdic_sign_unblock(const struct prdic_sign *);
+unsigned int prdic_sign_getnrecv(void);
 
-void *prdic_init(double freq_hz, double off_from_now);
-int prdic_procrastinate(void *prdic_inst);
-time_t prdic_getncycles_ref(void *);
-void prdic_set_fparams(void *, double);
-void prdic_set_epoch(void *, struct timespec *);
-void prdic_free(void *prdic_inst);
-int prdic_addband(void *prdic_inst, double freq_hz);
-void prdic_useband(void *prdic_inst, int bnum);
-enum prdic_det_type prdic_set_det_type(void *prdic_inst, int bnum,
-  enum prdic_det_type);
-double prdic_getload(void *);
-int prdic_islocked(void *);
-int prdic_CFT_enable(void *prdic_inst, int signum);
-int prdic_call_from_thread(void *, void (*)(void *), void *);
-
-#endif /* _ELPERIODIC_H_ */

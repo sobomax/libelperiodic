@@ -25,23 +25,18 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sys/time.h>
-#include <assert.h>
+#include <errno.h>
 #include <math.h>
-#define PRD_DEBUG 0
-#if PRD_DEBUG
-#include <stdio.h>
-#endif
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 
+#include "prdic_main.h"
 #include "elperiodic.h"
-#include "prdic_math.h"
 #include "prdic_timespecops.h"
+#include "prdic_math.h"
 #include "prdic_fd.h"
 #include "prdic_pfd.h"
-#include "prdic_main_pfd.h"
 #include "prdic_recfilter.h"
 #include "prdic_types.h"
 #include "prdic_procchain.h"
@@ -49,54 +44,54 @@
 #include "prdic_inst.h"
 #include "prdic_band.h"
 #include "prdic_time.h"
-#include "prdic_main.h"
+#include "prdic_sign.h"
 
-const double mineval = 0.001;
-const double maxeval = 2.0;
-
-int
-_prdic_procrastinate_PFD(struct prdic_inst *pip)
+void
+_prdic_do_procrastinate(struct prdic_inst *pip, int skipdelay)
 {
-    double add_delay, eval;
-    struct prdic_band *abp = pip->ab;
-#if PRD_DEBUG
-    static long long nrun = -1;
+    struct timespec tsleep, tremain;
+    int rval, nint;
+    double add_delay;
+    struct timespec eptime;
 
-    nrun += 1;
-#endif
-
-    _prdic_do_procrastinate(pip, abp->add_delay_fltrd.lastval == mineval);
-
-    eval = _prdic_PFD_get_error(&abp->detector.phase, &abp->last_tclk);
-
-#if PRD_DEBUG
-    fprintf(stderr, "run=%lld raw_error=%f filtered_error=%f add_delay=%f\n", nrun, eval,
-      abp->loop_error.lastval, abp->add_delay_fltrd.lastval);
-    fflush(stderr);
-#endif
-
-#if PRD_DEBUG
-    fprintf(stderr, "error=%f\n", eval);
-    fprintf(stderr, "last=%lld target=%lld\n", (long long)SEC(abp->last_tclk),
-      (long long)SEC(abp->detector.phase.target_tclk));
-    fflush(stderr);
-#endif
-
-    if (eval > 0) {
-        eval = _prdic_sigmoid(eval);
-        _prdic_recfilter_apply(&abp->loop_error, eval);
-    } else {
-        _prdic_recfilter_apply(&abp->loop_error, _prdic_sigmoid(-eval));
+    if (pip->sip != NULL) {
+        prdic_CFT_serve(pip->sip);
+        prdic_sign_unblock(pip->sip);
     }
-    if (eval != 0.0) {
-        add_delay = abp->add_delay_fltrd.lastval / (1.0 - eval);
+    if (skipdelay) {
+        goto skipdelay;
+    }
 
-        _prdic_recfilter_apply(&abp->add_delay_fltrd, add_delay);
-        if (abp->add_delay_fltrd.lastval < mineval) {
-            abp->add_delay_fltrd.lastval = mineval;
-        } else if (abp->add_delay_fltrd.lastval > maxeval) {
-            abp->add_delay_fltrd.lastval = maxeval;
+    add_delay = pip->ab->period * pip->ab->add_delay_fltrd.lastval;
+    dtime2timespec(add_delay, &tremain);
+
+    do {
+        unsigned int nsigns;
+
+        tsleep = tremain;
+        memset(&tremain, '\0', sizeof(tremain));
+        if (pip->sip != NULL) {
+            nsigns = prdic_sign_getnrecv();
         }
+        rval = nanosleep(&tsleep, &tremain);
+        nint = (rval < 0 && errno == EINTR);
+        if (pip->sip != NULL) {
+            if (nint && nsigns == prdic_sign_getnrecv()) {
+                /* Got some interrupt, but it was not *our* signal */
+                break;
+            }
+            prdic_sign_block(pip->sip);
+            prdic_CFT_serve(pip->sip);
+            prdic_sign_unblock(pip->sip);
+        }
+    } while (nint && !timespeciszero(&tremain));
+
+skipdelay:
+    if (pip->sip != NULL) {
+        prdic_sign_block(pip->sip);
     }
-    return (0);
+    getttime(&eptime, 1);
+
+    timespecsub(&eptime, &pip->ab->epoch);
+    timespecmul(&pip->ab->last_tclk, &eptime, &pip->ab->tfreq_hz);
 }

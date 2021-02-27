@@ -24,24 +24,21 @@
  * SUCH DAMAGE.
  */
 
-#ifndef _PRDIC_MATH_H_
-#define _PRDIC_MATH_H_
+#ifndef _PRDIC_RECFILTER_H_
+#define _PRDIC_RECFILTER_H_
 
-#ifdef MIN
-#undef MIN
-#endif
-#ifdef MAX
-#undef MAX
-#endif
-#ifdef ABS
-#undef ABS
-#endif
-#define MIN(x, y)       (((x) > (y)) ? (y) : (x))
-#define MAX(x, y)       (((x) > (y)) ? (x) : (y))
-#define ABS(x)          ((x) > 0 ? (x) : (-x))
+struct _prdic_procchain;
+
+struct _prdic_recfilter {
+    double a;
+    double b;
+    double lastval;
+    struct _prdic_procchain *procchain[2];
+};
 
 /* Function prototypes */
-double _prdic_sigmoid(double);
-double _prdic_freqoff_to_period(double freq_0, double foff_c, double foff_x);
+double _prdic_recfilter_apply(struct _prdic_recfilter *, double);
+void _prdic_recfilter_init(struct _prdic_recfilter *, double, double);
+void _prdic_recfilter_adjust(struct _prdic_recfilter *, double);
 
-#endif /* _PRDIC_MATH_H_ */
+#endif /* _PRDIC_RECFILTER_H_ */

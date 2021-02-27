@@ -24,24 +24,46 @@
  * SUCH DAMAGE.
  */
 
-#ifndef _PRDIC_MATH_H_
-#define _PRDIC_MATH_H_
+#include <sys/time.h>
+#include <assert.h>
+#include <math.h>
+#include <string.h>
 
-#ifdef MIN
-#undef MIN
-#endif
-#ifdef MAX
-#undef MAX
-#endif
-#ifdef ABS
-#undef ABS
-#endif
-#define MIN(x, y)       (((x) > (y)) ? (y) : (x))
-#define MAX(x, y)       (((x) > (y)) ? (x) : (y))
-#define ABS(x)          ((x) > 0 ? (x) : (-x))
+#include "prdic_math.h"
+#include "prdic_recfilter.h"
+#include "prdic_types.h"
+#include "prdic_procchain.h"
 
-/* Function prototypes */
-double _prdic_sigmoid(double);
-double _prdic_freqoff_to_period(double freq_0, double foff_c, double foff_x);
+double
+_prdic_recfilter_apply(struct _prdic_recfilter *f, double x)
+{
+    double chainval;
 
-#endif /* _PRDIC_MATH_H_ */
+    f->lastval = f->a * x + f->b * f->lastval;
+    for (int i = 0; f->procchain[i] != NULL; i++) {
+        struct _prdic_procchain *clnk;
+
+        if (i == 0)
+            chainval = f->lastval;
+        clnk = f->procchain[i];
+        chainval = clnk->handle(clnk->arg, chainval);
+    }
+    return f->lastval;
+}
+
+void
+_prdic_recfilter_init(struct _prdic_recfilter *f, double fcoef, double initval)
+{
+
+    f->lastval = initval;
+    _prdic_recfilter_adjust(f, fcoef);
+}
+
+void
+_prdic_recfilter_adjust(struct _prdic_recfilter *f, double fcoef)
+{
+
+    assert(fcoef < 1.0 && fcoef > 0.0);
+    f->a = 1.0 - fcoef;
+    f->b = fcoef;
+}

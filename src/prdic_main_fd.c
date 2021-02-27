@@ -29,7 +29,7 @@
 #include <assert.h>
 #include <math.h>
 //#define PRD_DEBUG 1
-#if defined(PRD_DEBUG)
+#if PRD_DEBUG
 #include <stdio.h>
 #endif
 #include <stdlib.h>
@@ -42,72 +42,64 @@
 #include "prdic_fd.h"
 #include "prdic_pfd.h"
 #include "prdic_main_fd.h"
-#include "prdic_band.h"
+#include "prdic_recfilter.h"
+#include "prdic_types.h"
+#include "prdic_procchain.h"
+#include "prdic_shmtrig.h"
 #include "prdic_inst.h"
+#include "prdic_band.h"
 #include "prdic_time.h"
+#include "prdic_main.h"
 
 int
 _prdic_procrastinate_FD(struct prdic_inst *pip)
 {
-    struct timespec tsleep, tremain;
-    int rval;
-    double eval, teval;
-    struct timespec eptime;
-#if defined(PRD_DEBUG)
+    double eval, teval, add_delay;
+    struct prdic_band *abp = pip->ab;
+#if PRD_DEBUG
     static long long nrun = -1;
 
     nrun += 1;
 #endif
 
-    if (pip->ab->add_delay_fltrd.lastval <= 0) {
-         goto skipdelay;
-    }
-    dtime2timespec(pip->ab->add_delay_fltrd.lastval, &tremain);
-
-#if defined(PRD_DEBUG)
-    fprintf(stderr, "nrun=%lld add_delay=%f add_delay_fltrd=%f lastval=%f\n", nrun, pip->ab->add_delay, pip->ab->add_delay_fltrd.lastval, pip->ab->loop_error.lastval);
+#if PRD_DEBUG
+    add_delay = abp->period * abp->add_delay_fltrd.lastval;
+    fprintf(stderr, "nrun=%lld add_delay=%f add_delay_fltrd=%f lastval=%f\n",
+      nrun, add_delay, abp->add_delay_fltrd.lastval,
+      abp->loop_error.lastval);
     fflush(stderr);
 #endif
-    do {
-        tsleep = tremain;
-        memset(&tremain, '\0', sizeof(tremain));
-        rval = nanosleep(&tsleep, &tremain);
-    } while (rval < 0 && !timespeciszero(&tremain));
 
-skipdelay:
-    getttime(&eptime, 1);
+    _prdic_do_procrastinate(pip, abp->add_delay_fltrd.lastval <= 0);
 
-    timespecsub(&eptime, &pip->ab->epoch);
-    timespecmul(&pip->ab->last_tclk, &eptime, &pip->ab->tfreq_hz);
-
-    eval = _prdic_FD_get_error(&pip->ab->detector.freq, &pip->ab->last_tclk);
-    eval = pip->ab->loop_error.lastval + erf(eval - pip->ab->loop_error.lastval);
-    _prdic_recfilter_apply(&pip->ab->loop_error, eval);
-    pip->ab->add_delay = pip->ab->add_delay_fltrd.lastval + (eval * pip->ab->period);
-    _prdic_recfilter_apply(&pip->ab->add_delay_fltrd, pip->ab->add_delay);
-    if (pip->ab->add_delay_fltrd.lastval < 0.0) {
-        pip->ab->add_delay_fltrd.lastval = 0;
-    } else if (pip->ab->add_delay_fltrd.lastval > pip->ab->period) {
-        pip->ab->add_delay_fltrd.lastval = pip->ab->period;
+    eval = _prdic_FD_get_error(&abp->detector.freq, &abp->last_tclk);
+    eval = abp->loop_error.lastval + erf(eval - abp->loop_error.lastval);
+    _prdic_recfilter_apply(&abp->loop_error, eval);
+    add_delay = abp->add_delay_fltrd.lastval + eval;
+    _prdic_recfilter_apply(&abp->add_delay_fltrd, add_delay);
+    if (abp->add_delay_fltrd.lastval < 0.0) {
+        abp->add_delay_fltrd.lastval = 0;
+    } else if (abp->add_delay_fltrd.lastval > 1.0) {
+        abp->add_delay_fltrd.lastval = 1.0;
     }
-    if (pip->ab->add_delay_fltrd.lastval > 0) {
-        teval = 1.0 - (pip->ab->add_delay_fltrd.lastval / pip->ab->period);
+    if (abp->add_delay_fltrd.lastval > 0) {
+        teval = 1.0 - abp->add_delay_fltrd.lastval;
     } else {
-        teval = 1.0 - pip->ab->loop_error.lastval;
+        teval = 1.0 - abp->loop_error.lastval;
     }
-    _prdic_recfilter_apply(&pip->ab->sysload_fltrd, teval);
+    _prdic_recfilter_apply(&abp->sysload_fltrd, teval);
 
-#if defined(PRD_DEBUG)
+#if PRD_DEBUG
     fprintf(stderr, "run=%lld raw_error=%f filtered_error=%f teval=%f filtered_teval=%f\n", nrun,
-      eval, pip->ab->loop_error.lastval, teval, pip->ab->sysload_fltrd.lastval);
+      eval, abp->loop_error.lastval, teval, abp->sysload_fltrd.lastval);
     fflush(stderr);
 #endif
 
-#if defined(PRD_DEBUG)
+#if PRD_DEBUG
     fprintf(stderr, "error=%f\n", eval);
     if (eval == 0.0 || 1) {
-        fprintf(stderr, "last=%lld target=%lld\n", SEC(&pip->ab->last_tclk),
-          SEC(&pip->ab->detector.freq.last_tclk));
+        fprintf(stderr, "last=%lld target=%lld\n", SEC(&abp->last_tclk),
+          SEC(&abp->detector.freq.last_tclk));
     }
     fflush(stderr);
 #endif
