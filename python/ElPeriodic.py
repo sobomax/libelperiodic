@@ -111,9 +111,10 @@ class ElPeriodic(object):
 
     def __init__(self, freq, offst = 0.0):
         self._elpl = _elpl
-        self._hndl = self._elpl.prdic_init(freq, offst)
-        if not bool(self._hndl):
+        _hndl = self._elpl.prdic_init(freq, offst)
+        if not bool(_hndl):
             raise Exception('prdic_init() failed')
+        self._hndl = _hndl
 
     def procrastinate(self):
         self._elpl.prdic_procrastinate(self._hndl)
@@ -133,11 +134,9 @@ class ElPeriodic(object):
         self._elpl.prdic_set_epoch(self._hndl, byref(ts))
 
     def __del__(self):
-        if bool(self._hndl):
-            try:
-                self._elpl.prdic_free(self._hndl)
-            except TypeError:
-                pass
+        if self._hndl is not None:
+            self._elpl.prdic_free(self._hndl)
+            self._hndl = None
 
     def CFT_enable(self, signum, ptrcall_class = _elpl_ptrcall_bare):
         if pythonapi == None:
