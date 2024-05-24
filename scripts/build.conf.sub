@@ -1,16 +1,22 @@
 enable_ubuntu_toolchain_test() {
-	sudo apt install software-properties-common
-	sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+	${SUDO} apt install software-properties-common
+	${SUDO} add-apt-repository -y ppa:ubuntu-toolchain-r/test
 }
 
 setup_qemu() {
 	ARCH1="${1}"
 	ARCH2="${2}"
-	sudo mkdir "/usr/${ARCH1}-linux-${ARCH2}/etc"
-	sudo touch "/usr/${ARCH1}-linux-${ARCH2}/etc/ld.so.cache"
-	sudo mkdir "/etc/qemu-binfmt"
-	sudo ln -sf "/usr/${ARCH1}-linux-${ARCH2}" "/etc/qemu-binfmt/${ARCH1}"
+	${SUDO} mkdir "/usr/${ARCH1}-linux-${ARCH2}/etc"
+	${SUDO} touch "/usr/${ARCH1}-linux-${ARCH2}/etc/ld.so.cache"
+	${SUDO} mkdir "/etc/qemu-binfmt"
+	${SUDO} ln -sf "/usr/${ARCH1}-linux-${ARCH2}" "/etc/qemu-binfmt/${ARCH1}"
 }
+
+
+if [ "`id -u`" -ne 0 ]
+then
+	SUDO="sudo -H DEBIAN_FRONTEND=noninteractive"
+fi
 
 case "${COMPILER}" in
 gcc)
@@ -20,7 +26,7 @@ gcc)
 gcc-i386-cross)
 	export CC="gcc"
 	CC_EXTRA_OPTS="-Werror -m32"
-	PRE_INSTALL_CMD="sudo dpkg --add-architecture i386"
+	PRE_INSTALL_CMD="${SUDO} dpkg --add-architecture i386"
 	PKGS="${PKGS} gcc g++ libc6-dev:i386 libstdc++6:i386 lib32gcc-7-dev"
 	;;
 gcc-mips64-cross)
@@ -57,7 +63,7 @@ clang)
 clang-i386-cross)
 	export CC="clang"
 	CC_EXTRA_OPTS="-Werror -m32"
-	PRE_INSTALL_CMD="sudo dpkg --add-architecture i386"
+	PRE_INSTALL_CMD="${SUDO} dpkg --add-architecture i386"
 	PKGS="${PKGS} clang llvm-dev libc6-dev:i386 libstdc++6:i386 lib32gcc-7-dev"
 	;;
 gcc-9)

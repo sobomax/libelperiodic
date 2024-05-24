@@ -13,8 +13,8 @@ fi
 
 PIP_CMD="${PYTHON_CMD} -m pip"
 
-sudo -H DEBIAN_FRONTEND=noninteractive apt-get update -y
-sudo -H DEBIAN_FRONTEND=noninteractive apt-get -y install ${PKGS}
+${SUDO} apt-get update -y
+${SUDO} apt-get -y install ${PKGS}
 #sudo ${PIP_CMD} install --upgrade pip
 ${PIP_CMD} install --user setuptools
 # Does not work at the moment:

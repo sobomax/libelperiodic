@@ -28,9 +28,9 @@ fi
 make all
 ./configure --without-python --enable-coverage
 make clean all
-sudo make install
+${SUDO} make install
 
-sudo ldconfig
+${SUDO} ldconfig
 
 cd src
 
