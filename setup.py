@@ -5,7 +5,8 @@ try:
 except ImportError:
     from distutils.core import setup
 from distutils.core import Extension
-import os
+from os import environ
+from sysconfig import get_platform
 
 elp_srcs = ['src/periodic.c', 'src/prdic_math.c', \
  'src/prdic_fd.c', \
@@ -15,11 +16,12 @@ elp_srcs = ['src/periodic.c', 'src/prdic_math.c', \
  'src/prdic_recfilter.c', 'src/prdic_shmtrig.c', \
  'src/prdic_sign.c']
 
+el_args = None if get_platform().startswith('macosx-') else ['-Wl,--version-script=src/Symbol.map',]
 module1 = Extension('_elperiodic', sources = elp_srcs, \
-    extra_link_args = ['-Wl,--version-script=src/Symbol.map',])
+    extra_link_args = el_args)
 
 def get_ex_mod():
-    if 'NO_PY_EXT' in os.environ:
+    if 'NO_PY_EXT' in environ:
         return None
     return [module1]
 
