@@ -8,45 +8,109 @@ on:
   push:
   pull_request:
 
+  release:
+    types: [created]
+
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
+  build_and_test:
     # The type of runner that the job will run on
     runs-on: ${{ matrix.os }}
     env:
       COMPILER: ${{ matrix.compiler }}
+      DOCKR_PLATFORM: 'x86_64'
+      DOCKR_BASE: 'ubuntu:18.04'
 
     strategy:
       matrix:
-        os: [ubuntu-20.04, ubuntu-18.04]
-        compiler: ['gcc', 'clang', 'gcc-9', 'gcc-10', 'clang-9', 'clang-10']
+        os: [ubuntu-latest, ubuntu-20.04]
+        compiler: ['gcc', 'clang']
         include:
-          - os: ubuntu-18.04
+          - os: ubuntu-latest
             compiler: 'gcc-i386-cross'
-          - os: ubuntu-18.04
+          - os: ubuntu-latest
             compiler: 'clang-i386-cross'
-          - os: ubuntu-18.04
+          - os: ubuntu-latest
             compiler: 'gcc-mips64-cross'
-          #- os: ubuntu-18.04
-          #  compiler: 'gcc-arm32-cross'
-          - os: ubuntu-18.04
+        # Test hangs & horrible jitter... :(
+        # - os: ubuntu-latest
+        #   compiler: 'gcc-arm32-cross'
+          - os: ubuntu-latest
             compiler: 'gcc-arm64-cross'
-          - os: ubuntu-16.04
-            compiler: 'gcc'
-          - os: ubuntu-16.04
-            compiler: 'clang'
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
+
+      - name: Start Docker container
+        if: endsWith(matrix.compiler, '-cross')
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-user-static
+          docker run --cidfile /tmp/_docker.cid -d --restart=always --platform linux/${DOCKR_PLATFORM} -v `pwd`:`pwd` ${DOCKR_BASE} sleep infinity
+
+      - name: before_install
+        run: if [ ! -e /tmp/_docker.cid ]; then sh -x scripts/do-install.sh; else COMPILER="${COMPILER}" docker exec -w `pwd` --env COMPILER `cat /tmp/_docker.cid` sh -x scripts/do-install.sh; fi
+
+      - name: script
+        run: if [ ! -e /tmp/_docker.cid ]; then sh -x scripts/do-test.sh; else COMPILER="${COMPILER}" docker exec -w `pwd` --env COMPILER `cat /tmp/_docker.cid` sh -x scripts/do-test.sh; fi
+  build_and_test_python:
+    # The type of runner that the job will run on
+    runs-on: ${{ matrix.os }}
+    env:
+      COMPILER: ${{ matrix.compiler }}
+      PYTHON_CMD: "python${{ matrix.python-version }}"
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, ubuntu-20.04]
+        python-version: ['3.8', '3.9', '3.10', '3.11']
+        compiler: ['gcc', 'clang']
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
 
       - name: before_install
         run: sh -x scripts/do-install.sh
 
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install setuptools wheel
+
       - name: script
-        run: sh -x scripts/do-test.sh
+        run: sh -x scripts/do-test-pwheels.sh
+  pypi_publish:
+    needs: [build_and_test, build_and_test_python]
+    if: github.event_name == 'release' && github.event.action == 'created'
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.x'
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install setuptools wheel twine
+    - name: Build and publish
+      env:
+        TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+        TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+      run: |
+        python setup.py sdist
+        twine upload dist/*

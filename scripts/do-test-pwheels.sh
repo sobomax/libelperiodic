@@ -30,6 +30,10 @@ if [ "`basename ${PYTHON_CMD}`" != "python2.7" ]
 then
   ${PYTHON_CMD} setup.py bdist_wheel
 fi
+if [ ! -e "${PYTHON_CMD}" ]
+then
+  PYTHON_CMD=`which ${PYTHON_CMD}`
+fi
 sudo ${PYTHON_CMD} setup.py install
 sudo find /usr -name _elp\*.so
 
