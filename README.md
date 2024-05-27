@@ -1,5 +1,4 @@
-[![Build Status@GitHub](https://github.com/sobomax/libelperiodic/workflows/Main%20CI/badge.svg?branch=master)](https://github.com/sobomax/libelperiodic/actions?query=branch%3Amaster++)
-[![Build Status](https://travis-ci.com/sobomax/libelperiodic.svg?branch=master)](https://travis-ci.com/sobomax/libelperiodic)
+[![Build Status@GitHub](https://github.com/sobomax/libelperiodic/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/sobomax/libelperiodic/actions/workflows/main.yml?query=branch%3Amaster++)
 [![Coverage Status](https://coveralls.io/repos/github/sobomax/libelperiodic/badge.svg?branch=master)](https://coveralls.io/github/sobomax/libelperiodic?branch=master)
 
 # libElPeriodic
