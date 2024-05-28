@@ -14,7 +14,7 @@ to the set frequency (and optionally phase as well) by applying phase
 locked loop design with a proportional phase detector and a low-pass
 filter as an error amplifier.
 
-## Usage
+## Basic Usage
 
 Sample usage pattern is demonstrated below. The code block denoted by the square
 brackets will be executing 125.5 times a second, untul the value returned by the
@@ -22,6 +22,8 @@ brackets will be executing 125.5 times a second, untul the value returned by the
 does not take more than 0.01 second to run on average and that OS scheduler
 plays the ball.
 
+    #include <assert.h>
+    #include <time.h>
     #include <elperiodic.h>
 
     extern int is_runnable(void);
@@ -32,16 +34,80 @@ plays the ball.
         double frequency = 125.5; /* Hz */
         void *elp;
 
-        prd = prdic_init(freq, 0.0);
-        assert(prd != NULL);
+        elp = prdic_init(frequency, 0.0);
+        assert(elp != NULL);
 
         while (is_runnable()) {
     //      [----------------------];
     //      [Insert your logic here];
     //      [----------------------];
-            prdic_procrastinate(prd);
+            prdic_procrastinate(elp);
         }
-        prdic_free(prd);
+        prdic_free(elp);
+    }
+
+## Dispatching Calls from Worker Threads
+
+The library also supports simple FIFO queue of function calls that have
+to be dispatched by the library asynchronously in the main thread during the
+"procrastination" time intervals. This allows I/O, timer and other type of
+events to enter into the processing loop in a thread-safe manner.
+
+This can be accomplished by enabling the functionality using the
+`prdic_CFT_enable()` API and then scheduling necessary calls via the
+`prdic_call_from_thread()` in a worker thread(s).
+
+    #include <assert.h>
+    #include <time.h>
+    #include <elperiodic.h>
+    #include <pthread.h>
+    #include <signal.h>
+
+    extern int do_something(void);
+
+    struct prd_ctx {
+        /* This member is initialized in the main thread */
+        void *elp;
+        /* This member only accessible by the main thread */
+        int is_runnable;
+        /* This member is filled in by the worker thread before exit */
+        int result;
+    };
+
+    static void shutdown(struct prd_ctx *ctxp) {ctxp->is_runnable = 0;}
+
+    static void
+    worker_thread(void *ap)
+    {
+        struct prd_ctx *ctxp = (struct prd_ctx *)ap;
+
+        ctxp->result = do_something();
+        prdic_call_from_thread(ctxp->elp, (void (*)(void *))shutdown, ctxp);
+    }
+
+    int
+    event_loop(void)
+    {
+        struct prd_ctx ctx = {.is_runnable = 1};
+        double freq = 125.5; /* Hz */
+        pthread_t wthr;
+
+        ctx.elp = prdic_init(freq, 0.0);
+        assert(ctx.elp != NULL);
+        assert(prdic_CFT_enable(ctx.elp, SIGUSR1) == 0);
+
+        assert(pthread_create(&wthr, NULL, (void *(*)(void *))worker_thread, &ctx) == 0);
+
+        while (ctx.is_runnable) {
+    //      [----------------------];
+    //      [Insert your logic here];
+    //      [----------------------];
+            prdic_procrastinate(ctx.elp);
+        }
+        pthread_join(wthr, NULL);
+        prdic_free(ctx.elp);
+
+        return ctx.result;
     }
 
 ## Story
