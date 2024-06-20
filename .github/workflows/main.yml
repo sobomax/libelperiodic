@@ -58,6 +58,7 @@ jobs:
 
       - name: script
         run: if [ ! -e /tmp/_docker.cid ]; then sh -x scripts/do-test.sh; else COMPILER="${COMPILER}" docker exec -w `pwd` --env COMPILER `cat /tmp/_docker.cid` sh -x scripts/do-test.sh; fi
+
   build_and_test_python:
     # The type of runner that the job will run on
     runs-on: ${{ matrix.os }}
@@ -67,7 +68,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-latest, ubuntu-20.04]
+        os: [ubuntu-latest, ubuntu-20.04, macos-latest]
         python-version: ['3.8', '3.9', '3.10', '3.11']
         compiler: ['gcc', 'clang']
 
@@ -81,7 +82,8 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: before_install
+      - if: ${{ matrix.os != 'macos-latest' }}
+        name: before_install
         run: sh -x scripts/do-install.sh
 
       - name: Install dependencies
@@ -91,6 +93,7 @@ jobs:
 
       - name: script
         run: sh -x scripts/do-test-pwheels.sh
+
   pypi_publish:
     needs: [build_and_test, build_and_test_python]
     if: github.event_name == 'release' && github.event.action == 'created'
