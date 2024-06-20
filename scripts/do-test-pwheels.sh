@@ -26,15 +26,11 @@ fi
 
 ${PYTHON_CMD} setup.py build
 ${PYTHON_CMD} setup.py sdist
-if [ "`basename ${PYTHON_CMD}`" != "python2.7" ]
-then
-  ${PYTHON_CMD} setup.py bdist_wheel
-fi
+${PYTHON_CMD} setup.py bdist_wheel
 if [ ! -e "${PYTHON_CMD}" ]
 then
   PYTHON_CMD=`which ${PYTHON_CMD}`
 fi
 sudo ${PYTHON_CMD} setup.py install
-sudo find /usr -name _elp\*.so
 
 ${TCMD} -o ElPeriodic.timings ${PYTHON_CMD} tests/t_ElPeriodic.py
