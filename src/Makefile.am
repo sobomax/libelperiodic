@@ -1,3 +1,7 @@
+if ENABLE_LTO
+LTO_FLAG = -flto
+endif
+
 lib_LTLIBRARIES = libelperiodic.la
 libelperiodic_la_SOURCES = periodic.c prdic_math.c \
   elperiodic.h prdic_math.h prdic_timespecops.h prdic_fd.c prdic_fd.h \
@@ -8,10 +12,11 @@ libelperiodic_la_SOURCES = periodic.c prdic_math.c \
   prdic_sign_ctx.h prdic_sign_impl.h prdic_band.h src/prdic_inst.h \
   src/prdic_time.h
 libelperiodic_la_DEPENDENCIES = Symbol.map
-libelperiodic_la_CFLAGS = -g3 -O0 -fPIC
-libelperiodic_la_LDFLAGS = -version-info 1 -Wl,--version-script=$(srcdir)/Symbol.map -lm @RT_LIB@
+libelperiodic_la_CFLAGS = -g3 -O0 -fPIC ${LTO_FLAG}
+libelperiodic_la_LDFLAGS = ${LTO_FLAG} -version-info 1 -Wl,--version-script=$(srcdir)/Symbol.map -lm @RT_LIB@
 
 noinst_PROGRAMS = testskew
 testskew_SOURCES = testskew.c
-testskew_CFLAGS = -Wno-format-zero-length
+testskew_CFLAGS = -Wno-format-zero-length ${LTO_FLAG}
+testskew_LDFLAGS = ${LTO_FLAG}
 testskew_LDADD = libelperiodic.la -lpthread
