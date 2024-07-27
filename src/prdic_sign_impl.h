@@ -29,6 +29,6 @@ struct prdic_sign {
     int signum;
     pthread_t sigtgt;
     struct prdic_sign_ctx *pscp;
-    atomic_uint sigsent;
+    _Atomic(unsigned int) sigsent;
     sigset_t bumask;
 };

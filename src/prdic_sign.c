@@ -40,8 +40,8 @@
 #define UINT_MAX      0xffffffff
 
 static __thread struct prdic_sign_ctx psc = {
-    .first = ATOMIC_VAR_INIT(NULL),
-    .sigackd = ATOMIC_VAR_INIT(UINT_MAX - 20)
+    .first = (NULL),
+    .sigackd = (UINT_MAX - 20)
 };
 
 static void

@@ -34,5 +34,5 @@ struct cftnode {
 
 struct prdic_sign_ctx {
     _Atomic(struct cftnode *) first;
-    atomic_uint sigackd;
+    _Atomic(unsigned int) sigackd;
 };
