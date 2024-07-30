@@ -24,13 +24,18 @@ else
   TCMD="${_TCMD}"
 fi
 
-${PYTHON_CMD} setup.py build
-${PYTHON_CMD} setup.py sdist
-${PYTHON_CMD} setup.py bdist_wheel
+if ${PYTHON_CMD} -m build --sdist
+then
+  ${PYTHON_CMD} -m build --wheel
+else
+  ${PYTHON_CMD} setup.py build
+  ${PYTHON_CMD} setup.py sdist
+  ${PYTHON_CMD} setup.py bdist_wheel
+fi
 if [ ! -e "${PYTHON_CMD}" ]
 then
   PYTHON_CMD=`which ${PYTHON_CMD}`
 fi
-sudo ${PYTHON_CMD} setup.py install
+sudo ${PYTHON_CMD} -m pip install .
 
 ${TCMD} -o ElPeriodic.timings ${PYTHON_CMD} tests/t_ElPeriodic.py
