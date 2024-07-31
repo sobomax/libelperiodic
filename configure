@@ -13040,6 +13040,51 @@ then :
 fi
 
 
+test_lto() {
+  if test "${ENABLE_LTO}" != "yes" -a "${ENABLE_LTO}" != "auto" ; then return; fi
+
+  local CFLAGS="$CFLAGS -flto"
+  local LDFLAGS="$LDFLAGS -flto"
+
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether linking with -flto works" >&5
+printf %s "checking whether linking with -flto works... " >&6; }
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+     local _ENABLE_LTO=yes
+else $as_nop
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+     local _ENABLE_LTO=no
+
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+  if test "${_ENABLE_LTO}" = "yes"
+  then
+    ENABLE_LTO="yes"
+    return
+  fi
+  if test "${ENABLE_LTO}" = "auto"
+  then
+    ENABLE_LTO="no"
+    return
+  fi
+  as_fn_error $? "LTO is not working" "$LINENO" 5
+}
+
 # Check whether --enable-lto was given.
 if test ${enable_lto+y}
 then :
@@ -13048,6 +13093,8 @@ else $as_nop
   ENABLE_LTO=no
 fi
 
+
+test_lto
 
 
 # Check whether --with-python was given.
