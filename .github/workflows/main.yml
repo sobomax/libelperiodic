@@ -64,11 +64,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       COMPILER: ${{ matrix.compiler }}
-      PYTHON_CMD: "python${{ matrix.python-version }}"
 
     strategy:
       matrix:
-        python-version: ['3.9', '3.10', '3.11', '3.12']
+        python-version: ['3.9', '3.10', '3.11', '3.12', '3.13-dev']
         compiler: ['gcc', 'clang']
         os: [ubuntu-latest, ubuntu-20.04, macos-latest]
 
@@ -81,6 +80,11 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+
+      - name: Define PYTHON_CMD
+        run: |
+          PYTHON_VER="`echo ${{ matrix.python-version }} | sed 's|-dev$||'`"
+          echo "PYTHON_CMD=python${PYTHON_VER}" >> $GITHUB_ENV
 
       - if: ${{ matrix.os != 'macos-latest' }}
         name: before_install
