@@ -11,6 +11,11 @@ LT_INIT
 mydef_version=`git describe --always --dirty || date "+%Y%m%d%H%M%S"`
 AC_DEFINE_UNQUOTED([VERSION_GIT], ["$mydef_version"])
 
+AC_ARG_ENABLE([silent],
+  AS_HELP_STRING([--enable-silent],[Less verbose build]),
+  [ENABLE_SILENT=$enableval],
+  [ENABLE_SILENT=no])
+
 AC_ARG_ENABLE(coverage,
   AS_HELP_STRING([--enable-coverage],[enable test coverage support]),
   [AC_DEFINE([ENABLE_COVERAGE])
@@ -61,6 +66,11 @@ AC_SUBST(RT_LIB)
 
 AM_CONDITIONAL(ENABLE_LTO, [test "x${ENABLE_LTO}" = "xyes" ])
 AM_CONDITIONAL([HAVE_PYTHON], [test "$PYTHON" != :])
+
+if test "${ENABLE_SILENT}" = "yes"
+then
+  AM_SILENT_RULES([yes])
+fi
 
 AC_CONFIG_FILES([Makefile src/Makefile])
 AC_OUTPUT
