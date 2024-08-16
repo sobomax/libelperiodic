@@ -15,7 +15,9 @@ libelperiodic_la_DEPENDENCIES = Symbol.map
 libelperiodic_la_CFLAGS = -g3 -O0 -fPIC ${LTO_FLAG}
 libelperiodic_la_LDFLAGS = ${LTO_FLAG} -version-info 1 -Wl,--version-script=$(srcdir)/Symbol.map -lm @RT_LIB@
 
+if ENABLE_noinst
 noinst_PROGRAMS = testskew
+endif
 testskew_SOURCES = testskew.c
 testskew_CFLAGS = -Wno-format-zero-length ${LTO_FLAG}
 testskew_LDFLAGS = ${LTO_FLAG}
