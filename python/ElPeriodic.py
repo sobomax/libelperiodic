@@ -25,6 +25,7 @@ from ctypes import cdll, c_double, c_void_p, c_int, c_long, Structure, \
   pointer, POINTER, CFUNCTYPE, byref, py_object, PYFUNCTYPE
 from ctypes import pythonapi
 from math import modf
+from functools import partial
 import os, sys, site, sysconfig
 
 class timespec(Structure):
@@ -79,12 +80,12 @@ class _elpl_cb(object):
 #sleep(20)
 
 def _elpl_ptrcall_safe(cbobj):
-#    print('_ptrcall(%s,%s,%s)' % (cbobj, cbobj.handler, cbobj.args))
+#    print(f'_ptrcall({cbobj=})')
     if pythonapi == None:
         # Happens when interpreter is being shut down
         return
     try:
-        cbobj.handler(*cbobj.args)
+        cbobj()
     except Exception as e:
         sys.stderr.write('call_from_thread %s%s failed: %s\n' % (cbobj.handler, cbobj.args, e))
         sys.stderr.flush()
@@ -96,13 +97,15 @@ def _elpl_ptrcall_bare(cbobj):
         # Happens when interpreter is being shut down
         return
     try:
-        cbobj.handler(*cbobj.args)
+        cbobj()
     except Exception as e:
         pyo = py_object(cbobj)
         pythonapi.Py_DecRef(pyo)
         raise e
     pyo = py_object(cbobj)
     pythonapi.Py_DecRef(pyo)
+
+class CFTRuntimeError(RuntimeError): pass
 
 class ElPeriodic(object):
     _hndl = None
@@ -146,12 +149,14 @@ class ElPeriodic(object):
             raise Exception('prdic_CFT_enable() = %d' % (r,))
         self._cbfunc = _elpl_cbtype(ptrcall_class)
 
-    def call_from_thread(self, handler, *args):
-        cbobj = _elpl_cb(handler, args)
+    def call_from_thread(self, handler, *args, **kw_args):
+        if not bool(self._hndl):
+            raise CFTRuntimeError("self._hndl is NULL, interpreter shutdown?")
+        cbobj = partial(handler, *args, **kw_args)
         pyo = py_object(cbobj)
         pythonapi.Py_IncRef(pyo)
         rval = self._elpl.prdic_call_from_thread(self._hndl, \
           self._cbfunc, cbobj)
         if rval != 0:
             pythonapi.Py_DecRef(pyo)
-            raise Exception('call_from_thread() = %d' % (rval,))
+            raise CFTRuntimeError('call_from_thread() = %d' % (rval,))
