@@ -1,15 +1,10 @@
-enable_ubuntu_toolchain_test() {
-	${SUDO} apt install software-properties-common
-	${SUDO} add-apt-repository -y ppa:ubuntu-toolchain-r/test
-}
-
 setup_qemu() {
 	ARCH1="${1}"
 	ARCH2="${2}"
 	${SUDO} mkdir "/usr/${ARCH1}-linux-${ARCH2}/etc"
 	${SUDO} touch "/usr/${ARCH1}-linux-${ARCH2}/etc/ld.so.cache"
-	${SUDO} mkdir "/etc/qemu-binfmt"
-	${SUDO} ln -sf "/usr/${ARCH1}-linux-${ARCH2}" "/etc/qemu-binfmt/${ARCH1}"
+	${SUDO} mkdir "/usr/gnemul"
+	${SUDO} ln -sf "/usr/${ARCH1}-linux-${ARCH2}" "/usr/gnemul/qemu-${ARCH1}"
 }
 
 
@@ -71,7 +66,6 @@ gcc-9)
 	export AR="gcc-ar-9"
 	export RANLIB="gcc-ranlib-9"
 	export GCOV_CMD="gcov-9"
-	PRE_INSTALL_CMD="enable_ubuntu_toolchain_test"
 	PKGS="${PKGS} gcc-9 g++-9"
 	;;
 gcc-10)
@@ -79,7 +73,6 @@ gcc-10)
 	export AR="gcc-ar-10"
 	export RANLIB="gcc-ranlib-10"
 	export GCOV_CMD="gcov-10"
-	PRE_INSTALL_CMD="enable_ubuntu_toolchain_test"
 	PKGS="${PKGS} gcc-10 g++-10"
 	;;
 clang-9)

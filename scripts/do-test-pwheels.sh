@@ -36,6 +36,6 @@ if [ ! -e "${PYTHON_CMD}" ]
 then
   PYTHON_CMD=`which ${PYTHON_CMD}`
 fi
-sudo ${PYTHON_CMD} -m pip install .
+${SUDO} ${PYTHON_CMD} -m pip install .
 
 ${TCMD} -o ElPeriodic.timings ${PYTHON_CMD} tests/t_ElPeriodic.py

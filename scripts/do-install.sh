@@ -2,7 +2,7 @@
 
 set -e
 
-PKGS="python3-pip"
+PKGS="python3 python3-pip"
 
 . $(dirname $0)/build.conf.sub
 
@@ -11,15 +11,8 @@ then
         ${PRE_INSTALL_CMD}
 fi
 
-PIP_CMD="${PYTHON_CMD} -m pip"
-
 ${SUDO} apt-get update -y
 ${SUDO} apt-get -y install ${PKGS}
-#sudo ${PIP_CMD} install --upgrade pip
-${PIP_CMD} install --user setuptools
-# Does not work at the moment:
-#  https://github.com/sobomax/libelperiodic/runs/1930614303
-#${PIP_CMD} install --user cpp-coveralls
 
 if [ ! -z "${POST_INSTALL_CMD}" ]
 then

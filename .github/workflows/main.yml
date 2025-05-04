@@ -18,27 +18,30 @@ on:
 jobs:
   build_and_test:
     # The type of runner that the job will run on
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
+    container:
+      image: ubuntu:${{ matrix.os }}
     env:
       COMPILER: ${{ matrix.compiler }}
       DOCKR_PLATFORM: 'x86_64'
       DOCKR_BASE: 'ubuntu:18.04'
 
     strategy:
+      fail-fast: false
       matrix:
+        os: [24.04, 22.04, 20.04]
         compiler: ['gcc', 'clang']
-        os: [ubuntu-latest, ubuntu-20.04]
         include:
-        - os: ubuntu-latest
+        - os: 24.04
           compiler: 'gcc-i386-cross'
-        - os: ubuntu-latest
+        - os: 24.04
           compiler: 'clang-i386-cross'
-        - os: ubuntu-latest
+        - os: 24.04
           compiler: 'gcc-mips64-cross'
         # Test hangs & horrible jitter... :(
-        # - os: ubuntu-latest
+        # - os: 24.04
         #   compiler: 'gcc-arm32-cross'
-        - os: ubuntu-latest
+        - os: 24.04
           compiler: 'gcc-arm64-cross'
 
     # Steps represent a sequence of tasks that will be executed as part of the job
@@ -46,12 +49,17 @@ jobs:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v4
 
+    - name: Install Docker CLI
+      if: endsWith(matrix.compiler, '-cross')
+      run: |
+        apt-get update
+        apt-get install -y docker.io
+
     - name: Start Docker container
       if: endsWith(matrix.compiler, '-cross')
       run: |
-        sudo apt-get update
-        sudo apt-get install -y qemu-user-static
-        docker run --cidfile /tmp/_docker.cid -d --restart=always --platform linux/${DOCKR_PLATFORM} -v `pwd`:`pwd` ${DOCKR_BASE} sleep infinity
+        docker run --rm --privileged tonistiigi/binfmt:latest -install all
+        docker run --cidfile /tmp/_docker.cid -d --restart=always --platform linux/${DOCKR_PLATFORM} -v "/home/runner/work":"/__w" ${DOCKR_BASE} sleep infinity
 
     - name: before_install
       run: if [ ! -e /tmp/_docker.cid ]; then sh -x scripts/do-install.sh; else COMPILER="${COMPILER}" docker exec -w `pwd` --env COMPILER `cat /tmp/_docker.cid` sh -x scripts/do-install.sh; fi
@@ -66,10 +74,11 @@ jobs:
       COMPILER: ${{ matrix.compiler }}
 
     strategy:
+      fail-fast: false
       matrix:
         python-version: ['3.9', '3.10', '3.11', '3.12', '3.13-dev']
+        os: [ubuntu-latest, ubuntu-22.04, macos-latest]
         compiler: ['gcc', 'clang']
-        os: [ubuntu-latest, ubuntu-20.04, macos-latest]
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
