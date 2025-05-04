@@ -29,35 +29,35 @@ jobs:
         compiler: ['gcc', 'clang']
         os: [ubuntu-latest, ubuntu-20.04]
         include:
-          - os: ubuntu-latest
-            compiler: 'gcc-i386-cross'
-          - os: ubuntu-latest
-            compiler: 'clang-i386-cross'
-          - os: ubuntu-latest
-            compiler: 'gcc-mips64-cross'
+        - os: ubuntu-latest
+          compiler: 'gcc-i386-cross'
+        - os: ubuntu-latest
+          compiler: 'clang-i386-cross'
+        - os: ubuntu-latest
+          compiler: 'gcc-mips64-cross'
         # Test hangs & horrible jitter... :(
         # - os: ubuntu-latest
         #   compiler: 'gcc-arm32-cross'
-          - os: ubuntu-latest
-            compiler: 'gcc-arm64-cross'
+        - os: ubuntu-latest
+          compiler: 'gcc-arm64-cross'
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - uses: actions/checkout@v4
 
-      - name: Start Docker container
-        if: endsWith(matrix.compiler, '-cross')
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y qemu-user-static
-          docker run --cidfile /tmp/_docker.cid -d --restart=always --platform linux/${DOCKR_PLATFORM} -v `pwd`:`pwd` ${DOCKR_BASE} sleep infinity
+    - name: Start Docker container
+      if: endsWith(matrix.compiler, '-cross')
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y qemu-user-static
+        docker run --cidfile /tmp/_docker.cid -d --restart=always --platform linux/${DOCKR_PLATFORM} -v `pwd`:`pwd` ${DOCKR_BASE} sleep infinity
 
-      - name: before_install
-        run: if [ ! -e /tmp/_docker.cid ]; then sh -x scripts/do-install.sh; else COMPILER="${COMPILER}" docker exec -w `pwd` --env COMPILER `cat /tmp/_docker.cid` sh -x scripts/do-install.sh; fi
+    - name: before_install
+      run: if [ ! -e /tmp/_docker.cid ]; then sh -x scripts/do-install.sh; else COMPILER="${COMPILER}" docker exec -w `pwd` --env COMPILER `cat /tmp/_docker.cid` sh -x scripts/do-install.sh; fi
 
-      - name: script
-        run: if [ ! -e /tmp/_docker.cid ]; then sh -x scripts/do-test.sh; else COMPILER="${COMPILER}" docker exec -w `pwd` --env COMPILER `cat /tmp/_docker.cid` sh -x scripts/do-test.sh; fi
+    - name: script
+      run: if [ ! -e /tmp/_docker.cid ]; then sh -x scripts/do-test.sh; else COMPILER="${COMPILER}" docker exec -w `pwd` --env COMPILER `cat /tmp/_docker.cid` sh -x scripts/do-test.sh; fi
 
   build_and_test_python:
     # The type of runner that the job will run on
@@ -73,30 +73,30 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - uses: actions/checkout@v4
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
 
-      - name: Define PYTHON_CMD
-        run: |
-          PYTHON_VER="`echo ${{ matrix.python-version }} | sed 's|-dev$||'`"
-          echo "PYTHON_CMD=python${PYTHON_VER}" >> $GITHUB_ENV
+    - name: Define PYTHON_CMD
+      run: |
+        PYTHON_VER="`echo ${{ matrix.python-version }} | sed 's|-dev$||'`"
+        echo "PYTHON_CMD=python${PYTHON_VER}" >> $GITHUB_ENV
 
-      - if: ${{ matrix.os != 'macos-latest' }}
-        name: before_install
-        run: sh -x scripts/do-install.sh
+    - if: ${{ matrix.os != 'macos-latest' }}
+      name: before_install
+      run: sh -x scripts/do-install.sh
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install --upgrade setuptools wheel build
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install --upgrade setuptools wheel build
 
-      - name: script
-        run: sh -x scripts/do-test-pwheels.sh
+    - name: script
+      run: sh -x scripts/do-test-pwheels.sh
 
   pypi_publish:
     needs: [build_and_test, build_and_test_python]
