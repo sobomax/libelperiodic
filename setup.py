@@ -7,6 +7,11 @@ except ImportError:
 from distutils.core import Extension
 from os import environ
 from sysconfig import get_platform
+from os.path import realpath, dirname
+from sys import path as sys_path
+
+sys_path.insert(0, realpath(dirname(__file__)))
+from build_tools.CheckVersion import CheckVersion
 
 elp_srcs = ['src/periodic.c', 'src/prdic_math.c', \
  'src/prdic_fd.c', \
@@ -41,6 +46,7 @@ kwargs = {
       'package_dir':{'elperiodic':'python'},
       'ext_modules': get_ex_mod(),
       'python_requires': '>=2.7',
+      'cmdclass': {'checkversion': CheckVersion},
       'license': 'BSD-2-Clause',
       'classifiers': [
             'Operating System :: POSIX',
