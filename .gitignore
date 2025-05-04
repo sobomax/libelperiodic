@@ -15,7 +15,7 @@ Makefile
 config.log
 config.status
 libtool
-build/
+./build/
 src/.deps/
 src/.libs/
 src/Makefile
