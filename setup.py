@@ -41,8 +41,8 @@ kwargs = {
       'package_dir':{'elperiodic':'python'},
       'ext_modules': get_ex_mod(),
       'python_requires': '>=2.7',
+      'license': 'BSD-2-Clause',
       'classifiers': [
-            'License :: OSI Approved :: BSD License',
             'Operating System :: POSIX',
             'Programming Language :: C',
             'Programming Language :: Python'
