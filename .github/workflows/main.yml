@@ -16,8 +16,8 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  build_and_test:
-    # The type of runner that the job will run on
+  build_test:
+    name: Build&Test - C
     runs-on: ubuntu-latest
     container:
       image: ubuntu:${{ matrix.os }}
@@ -67,8 +67,8 @@ jobs:
     - name: script
       run: if [ ! -e /tmp/_docker.cid ]; then sh -x scripts/do-test.sh; else COMPILER="${COMPILER}" docker exec -w `pwd` --env COMPILER `cat /tmp/_docker.cid` sh -x scripts/do-test.sh; fi
 
-  build_and_test_python:
-    # The type of runner that the job will run on
+  build_test_python:
+    name: Build&Test - Python
     runs-on: ${{ matrix.os }}
     env:
       COMPILER: ${{ matrix.compiler }}
@@ -108,14 +108,16 @@ jobs:
       run: sh -x scripts/do-test-pwheels.sh
 
   build_wheels:
+    name: Build Python Wheels
     permissions:
       packages: write
-    needs: [build_and_test_python]
+    needs: [build_test_python]
     uses: sippy/cimagic/.github/workflows/BuildPythonWheels.yml@v1
 
   publish_all_wheels:
+    name: Publish Wheels
     runs-on: ubuntu-latest
-    needs: [build_and_test, build_and_test_python, build_wheels]
+    needs: [build_test, build_test_python, build_wheels]
     environment:
       name: pypi
       url: https://pypi.org/p/elperiodic
@@ -144,7 +146,7 @@ jobs:
         pip install --upgrade build setuptools wheel
 
     - name: build
-      run: python setup.py build sdist
+      run: python setup.py sdist
 
     - name: Check release version number
       if: github.event_name == 'release' && github.event.action == 'published'
@@ -158,6 +160,7 @@ jobs:
       uses: pypa/gh-action-pypi-publish@release/v1
 
   roll_release:
+    name: Roll Release
     needs: publish_all_wheels
     permissions:
       contents: write
