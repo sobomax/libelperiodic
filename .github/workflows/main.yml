@@ -76,7 +76,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.9', '3.10', '3.11', '3.12', '3.13-dev']
+        python-version: ['3.9', '3.10', '3.11', '3.12', '3.13', '3.14-dev']
         os: [ubuntu-latest, ubuntu-22.04, macos-latest]
         compiler: ['gcc', 'clang']
 
@@ -112,7 +112,7 @@ jobs:
     permissions:
       packages: write
     needs: [build_test_python]
-    uses: sippy/cimagic/.github/workflows/BuildPythonWheels.yml@v1
+    uses: sippy/cimagic/.github/workflows/BuildPythonWheels.yml@v2
 
   publish_all_wheels:
     name: Publish Wheels
@@ -164,4 +164,4 @@ jobs:
     needs: publish_all_wheels
     permissions:
       contents: write
-    uses: sippy/cimagic/.github/workflows/RollReleaseDraft.yml@v1
+    uses: sippy/cimagic/.github/workflows/RollReleaseDraft.yml@v2
