@@ -26,20 +26,27 @@ import sys
 from elperiodic.ElPeriodic import ElPeriodic, _elpl_ptrcall_safe
 from threading import Thread
 
-def barfoo(a1, a2):
-    sys.stdout.write('\t\tbarfoo%12s\r' % ((a1, a2),))
-    sys.stdout.flush()
+class CBValidator():
+    last_a2 = -1
+    def barfoo(self, a1, a2):
+        assert(a2 == self.last_a2 + 1)
+        self.last_a2 += 1
+        if a2 % 100 != 0:
+            return
+        sys.stdout.write('\t\tbarfoo%12s\r' % ((a1, a2),))
+        sys.stdout.flush()
 
 class AnnoyingThread(Thread):
     def __init__(self, elp):
         Thread.__init__(self)
         self.elp = elp
+        self.cbv = CBValidator()
         self.start()
 
     def run(self):
         from time import sleep
         for i in range(0, 1000):
-            self.elp.call_from_thread(barfoo, 'bar', i)
+            self.elp.call_from_thread(self.cbv.barfoo, 'bar', i)
             sleep(0.01)
         self.elp.call_from_thread(barfoo, 'bar', 'o')
         self.elp = None
