@@ -29,7 +29,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [24.04, 22.04, 20.04]
+        os: [26.04, 24.04, 22.04]
         compiler: ['gcc', 'clang']
         include:
         - os: 24.04
@@ -47,7 +47,7 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Install Docker CLI
       if: endsWith(matrix.compiler, '-cross')
@@ -64,7 +64,7 @@ jobs:
     - name: before_install
       run: if [ ! -e /tmp/_docker.cid ]; then sh -x scripts/do-install.sh; else COMPILER="${COMPILER}" docker exec -w `pwd` --env COMPILER `cat /tmp/_docker.cid` sh -x scripts/do-install.sh; fi
 
-    - name: script
+    - name: Build & Test
       run: if [ ! -e /tmp/_docker.cid ]; then sh -x scripts/do-test.sh; else COMPILER="${COMPILER}" docker exec -w `pwd` --env COMPILER `cat /tmp/_docker.cid` sh -x scripts/do-test.sh; fi
 
   build_test_python:
@@ -76,17 +76,19 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.9', '3.10', '3.11', '3.12', '3.13', '3.14-dev']
-        os: [ubuntu-latest, ubuntu-22.04, macos-latest]
+        python-version: ['3.10', '3.11', '3.12', '3.13', '3.14', '3.15-dev']
+        os: [ubuntu-latest, ubuntu-24.04, macos-latest]
         compiler: ['gcc', 'clang']
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
+      env:
+        PIP_NO_CACHE_DIR: 1
+      uses: actions/setup-python@v6
       with:
         python-version: ${{ matrix.python-version }}
 
@@ -112,7 +114,7 @@ jobs:
     permissions:
       packages: write
     needs: [build_test_python]
-    uses: sippy/cimagic/.github/workflows/BuildPythonWheels.yml@v2
+    uses: sippy/cimagic/.github/workflows/BuildPythonWheels.yml@v3
 
   publish_all_wheels:
     name: Publish Wheels
@@ -126,17 +128,17 @@ jobs:
       contents: read
       id-token: write
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Download all wheel artifacts
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         path: dist
         pattern: 'dist-*'
         merge-multiple: true
 
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: '3.x'
 
@@ -164,4 +166,4 @@ jobs:
     needs: publish_all_wheels
     permissions:
       contents: write
-    uses: sippy/cimagic/.github/workflows/RollReleaseDraft.yml@v2
+    uses: sippy/cimagic/.github/workflows/RollReleaseDraft.yml@v3
